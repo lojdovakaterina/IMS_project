@@ -1,0 +1,8 @@
+# Ignore Visual Studio Code files
+.vscode/
+
+# Ignore tar.gz
+*.tar.gz
+
+# Ignore files 
+*.
