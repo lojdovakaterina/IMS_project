@@ -1,6 +1,6 @@
 CC = g++
 FLAGS = -Wall -std=c++11 -Wextra -pedantic
-SRC = main.cpp
+BASES_FILES = main.cpp main.h
 TARGET = main
 SIMLIB = -lsimlib -lm
 
@@ -8,8 +8,8 @@ SIMLIB = -lsimlib -lm
 
 all: $(TARGET)
 
-$(TARGET): $(SRC)
-	$(CC) $(FLAGS) -o $(TARGET) $(SRC) $(SIMLIB)
+$(TARGET): $(BASES_FILES)
+	$(CC) $(FLAGS) -o $(TARGET) $(BASES_FILES) $(SIMLIB)
 
 run: all
 	./$(TARGET) -i 3 -n 3 -b
