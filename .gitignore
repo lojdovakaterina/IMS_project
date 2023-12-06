@@ -1,8 +1,14 @@
-# Ignore Visual Studio Code files
-.vscode/
+# Ignore files without extension
+*
+!*/
+!*.*
 
 # Ignore tar.gz
 *.tar.gz
 
-# Ignore files 
-*.
+# Ignore .out
+*.out
+
+
+# Ignore folders
+*/
