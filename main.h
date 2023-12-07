@@ -20,12 +20,11 @@
 
 int national = 0;
 int international = 0;
-#define WAIT_QUEUE 3
 
-Store pokladny("Pokladny", 0);
+Store InterCounter("Mezinárodní přepážky", 0);
+Store NationalCounter("Vnitrostátní přepážky", 0);
 
-// global objects:
-// Facility Box("Box");
+Facility Box("Box");
 Histogram Table("Table", 0, 25, 20);
 
 std::string args = "xxxx"; // možné modely

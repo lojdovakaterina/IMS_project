@@ -12,36 +12,45 @@
 #include "main.h"
 
 class NationalConnections : public Process {
+    double ArrivalTime;
     void Behavior() {
-        Enter(pokladny, 1);
-        Wait(Exponential(1)); // u pokladny // 37.13 s TODO
-        Leave(pokladny, 1);
+        ArrivalTime = Time;
+        Seize(Box);
+        Enter(NationalCounter, 1);
+        Wait(Exponential(37.13)); // u pokladdny ... exponenciálně?
+        Leave(NationalCounter, 1);
+        Release(Box);
+        Table(Time - ArrivalTime);
     }
 };
 
 class InternationalConnections : public Process {
+    double ArrivalTime;
     void Behavior() {
-        Enter(pokladny, 1);
-        Wait(Exponential(2)); // u pokladny // 43.58 s TODO
-        Leave(pokladny, 1);
+        ArrivalTime = Time;
+        Seize(Box);
+        Enter(InterCounter, 1);
+        Wait(Exponential(43.58)); // u pokladny ... exponenciálně?
+        Leave(InterCounter, 1);
+        Release(Box);
+        Table(Time - ArrivalTime);
     }
 };
 
 class Customer : public Process {
-
-    // double Prichod; // atribute of each customer
+    double ArrivalTime;
     void Behavior() { // --- behavoir specification ---
-        // Prichod = Time;   // incoming time
-        // Seize(Box);       // start of service
-        Wait(WAIT_QUEUE); // time of service       //TODO vteriny?
+        ArrivalTime = Time;   // incoming time
+        Seize(Box);       // start of service
+        Wait(180); // 3 minuty ... příchod do systému? ten první čtvereček :D
         double p = Uniform(0, 100);
         if (p > 45.39) {
             (new NationalConnections)->Activate();
         } else {
             (new InternationalConnections)->Activate();
         }
-        // Release(Box);          // end of service
-        // Table(Time - Prichod); // waiting and service time
+        Release(Box);          // end of service
+        Table(Time - ArrivalTime); // waiting and service time
     }
 };
 
@@ -90,26 +99,33 @@ void argParse(int argc, char *argv[]) {
     }
 
     // Check if mandatory parameters are provided //TODO
-    if (international < 1 || international > 6 || national < 1 || national > 6) {
-        fprintf(stderr, "International and national parameters are mandatory and must be in the range <1, 6>.\n");
+    if (national < 1 || national > 6) {
+        fprintf(stderr, "Počet vnitrostátních pokladen je nutné zadat. Musí také být v rozmezí 1 až 6.\n");
+        std::exit(EXIT_FAILURE);
+    }
+    if (international < 1 || international > 4) {
+        fprintf(stderr, "Počet mezinárodních pokladen je nutné zadat. Musí také být v rozmezí 1 až 6.\n");
         std::exit(EXIT_FAILURE);
     }
 }
 
 int main(int argc, char *argv[]) {
     argParse(argc, argv);
-    pokladny.SetCapacity(national);
+    NationalCounter.SetCapacity(national);
+    InterCounter.SetCapacity(international);
     int c;
     int i = 0;
     while ((c = args[i++]) != '\0') {
         switch (c) {
         case 'b':
             SetOutput("base.out");
-            printf("Začátek simulace... %ld\n", pokladny.Capacity());
-            Init(0, 100);                // experiment initialization for time 0..100
+            printf("Začátek simulace...\n");
+            Init(0, 10000);                // experiment initialization for time 0..10000  vůbec nevím kolik :D
             (new Generator)->Activate(); // customer generator
             Run();                       // simulation
-            // Box.Output();                // print of results
+            NationalCounter.Output();
+            InterCounter.Output();
+            Box.Output();                // print of results
             Table.Output();
             printf("Konec simulace...\n");
             break;
