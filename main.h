@@ -14,9 +14,19 @@
 #include <cstdlib>
 #include <cstring>
 #include <getopt.h>
+#include <iostream>
 #include <simlib.h>
 #include <stdio.h>
-#include <iostream>
+
+#define SECOND *c_SECOND
+#define MINUTE *c_MINUTE
+#define HOUR *c_HOUR
+#define DAY *c_DAY
+
+const unsigned long long c_SECOND = 1;
+const unsigned long long c_MINUTE = c_SECOND * 60;
+const unsigned long long c_HOUR = c_MINUTE * 60;
+const unsigned long long c_DAY = c_HOUR * 24;
 
 int national = 0;
 int international = 0;
@@ -24,7 +34,6 @@ int international = 0;
 Store InterCounter("Mezinárodní přepážky", 0);
 Store NationalCounter("Vnitrostátní přepážky", 0);
 
-Facility Box("Box");
 Histogram Table("Table", 0, 25, 20);
 
 std::string args = "xxxx"; // možné modely
@@ -40,5 +49,7 @@ struct option long_args[] =
         {"line_divider", no_argument, NULL, 'l'},
         {0, 0, 0, 0} // ukoncovaci prvek
 };
+
+unsigned long long simulation_time = 1 DAY;
 
 #endif // IMS_MAIN_H

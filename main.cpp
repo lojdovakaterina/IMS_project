@@ -15,11 +15,9 @@ class NationalConnections : public Process {
     double ArrivalTime;
     void Behavior() {
         ArrivalTime = Time;
-        Seize(Box);
         Enter(NationalCounter, 1);
         Wait(Exponential(37.13)); // u pokladdny ... exponenciálně?
         Leave(NationalCounter, 1);
-        Release(Box);
         Table(Time - ArrivalTime);
     }
 };
@@ -28,11 +26,9 @@ class InternationalConnections : public Process {
     double ArrivalTime;
     void Behavior() {
         ArrivalTime = Time;
-        Seize(Box);
         Enter(InterCounter, 1);
         Wait(Exponential(43.58)); // u pokladny ... exponenciálně?
         Leave(InterCounter, 1);
-        Release(Box);
         Table(Time - ArrivalTime);
     }
 };
@@ -41,7 +37,6 @@ class Customer : public Process {
     double ArrivalTime;
     void Behavior() { // --- behavoir specification ---
         ArrivalTime = Time;   // incoming time
-        Seize(Box);       // start of service
         Wait(180); // 3 minuty ... příchod do systému? ten první čtvereček :D
         double p = Uniform(0, 100);
         if (p > 45.39) {
@@ -49,7 +44,6 @@ class Customer : public Process {
         } else {
             (new InternationalConnections)->Activate();
         }
-        Release(Box);          // end of service
         Table(Time - ArrivalTime); // waiting and service time
     }
 };
@@ -120,12 +114,11 @@ int main(int argc, char *argv[]) {
         case 'b':
             SetOutput("base.out");
             printf("Začátek simulace...\n");
-            Init(0, 10000);                // experiment initialization for time 0..10000  vůbec nevím kolik :D
+            Init(0, (double)simulation_time);
             (new Generator)->Activate(); // customer generator
             Run();                       // simulation
             NationalCounter.Output();
             InterCounter.Output();
-            Box.Output();                // print of results
             Table.Output();
             printf("Konec simulace...\n");
             break;
