@@ -11,6 +11,7 @@
 
 #include "main.h"
 
+<<<<<<< Updated upstream
 class NationalConnections : public Process {
     double ArrivalTime;
     void Behavior() {
@@ -18,21 +19,39 @@ class NationalConnections : public Process {
         Enter(NationalCounter, 1);
         Wait(Exponential(37.13)); // u pokladdny ... exponenciálně?
         Leave(NationalCounter, 1);
-        Table(Time - ArrivalTime);
-    }
-};
-
-class InternationalConnections : public Process {
+=======
+class CardPayment : public Process {
     double ArrivalTime;
     void Behavior() {
         ArrivalTime = Time;
         Enter(InterCounter, 1);
+        Wait(Exponential(45)); // kartou ... exponenciálně?
+        Leave(InterCounter, 1);
+>>>>>>> Stashed changes
+        Table(Time - ArrivalTime);
+    }
+};
+
+<<<<<<< Updated upstream
+class InternationalConnections : public Process {
+=======
+class CashPayment : public Process {
+>>>>>>> Stashed changes
+    double ArrivalTime;
+    void Behavior() {
+        ArrivalTime = Time;
+        Enter(InterCounter, 1);
+<<<<<<< Updated upstream
         Wait(Exponential(43.58)); // u pokladny ... exponenciálně?
+=======
+        Wait(Exponential(15)); // hotově ... exponenciálně?
+>>>>>>> Stashed changes
         Leave(InterCounter, 1);
         Table(Time - ArrivalTime);
     }
 };
 
+<<<<<<< Updated upstream
 class Customer : public Process {
     double ArrivalTime;
     void Behavior() { // --- behavoir specification ---
@@ -55,6 +74,69 @@ class Generator : public Event {         // generátor zákazníků
     }
 };
 
+=======
+class NationalConnections : public Process {
+    double ArrivalTime;
+    void Behavior() {
+        ArrivalTime = Time;
+        Enter(NationalCounter, 1);
+        Wait(Exponential(37.13)); // u pokladdny ... exponenciálně?
+        double p = Uniform(0, 100);
+        if (p > 42.31) {
+            Leave(NationalCounter, 1);
+            Table(Time - ArrivalTime);
+            (new CardPayment)->Activate();
+        } else {
+            Leave(NationalCounter, 1);
+            Table(Time - ArrivalTime);
+            (new CashPayment)->Activate();
+        }
+    }
+};
+
+class InternationalConnections : public Process {
+    double ArrivalTime;
+    void Behavior() {
+        ArrivalTime = Time;
+        Enter(InterCounter, 1);
+        Wait(Exponential(43.58)); // u pokladny ... exponenciálně?
+        double p = Uniform(0, 100);
+        if (p > 42.31) {
+            Leave(InterCounter, 1);
+            Table(Time - ArrivalTime);
+            (new CardPayment)->Activate();
+        } else {
+            Leave(InterCounter, 1);
+            Table(Time - ArrivalTime);
+            (new CashPayment)->Activate();
+        }
+    }
+};
+
+class Customer : public Process {
+    double ArrivalTime;
+    void Behavior() {       // --- behavoir specification ---
+        ArrivalTime = Time; // incoming time
+        Wait(180);          // 3 minuty ... příchod do systému? ten první čtvereček :D
+        double p = Uniform(0, 100);
+        if (p > 45.39) {
+            Table(Time - ArrivalTime); // waiting and service time
+            (new NationalConnections)->Activate();
+        } else {
+            Table(Time - ArrivalTime); // waiting and service time
+            (new InternationalConnections)->Activate();
+        }
+    }
+};
+
+class Generator : public Event {         // generátor zákazníků
+    void Behavior() {                    // --- popis chování  generátorů ---
+        (new Customer)->Activate();      // nový zákazník, aktivace v čase time
+        Activate(Time + Exponential(5)); // příchod cestujících do systému TODO
+    }
+};
+
+>>>>>>> Stashed changes
 void argParse(int argc, char *argv[]) {
     int c;
     while ((c = getopt_long(argc, argv, short_args, long_args, NULL)) != -1) {
