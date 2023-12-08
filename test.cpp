@@ -13,68 +13,22 @@
 
 class BaseModelCustomer : public Process {
     double ArrivalTime;
-    double ServiceTime;
     void Behavior() {
         ArrivalTime = Time;
-        double rnd_pct = Random() * 100;
-        // Store &counter = (rnd_pct > COUNTER_PCT) ? NationalCounter : InterCounter; // ktera prepazka?
+        Store &counter = (Random() * 100 > 45.39) ? NationalCounter : InterCounter; // ktera prepazka?
 
-        // Enter(counter, 1);
-        // (rnd_pct > COUNTER_PCT) ? NationalWaitingTable(Time - ArrivalTime) : InterWaitingTable(Time - ArrivalTime);
-        // ServiceTime = Time;
-        // Wait((rnd_pct > COUNTER_PCT) ? NATIONAL_SERVICE : INTER_SERVICE); // obsluha
-        // (rnd_pct > COUNTER_PCT) ? NationalService(Time - ServiceTime) : InterService(Time - ServiceTime);
-        // Leave(counter, 1);
+        Enter(counter, 1);
+        Wait((Random() * 100 > 42.31) ? 45 : 15); // cekani i platby kartou a hotove
+        Leave(counter, 1);
 
-        if (rnd_pct > COUNTER_PCT){
-            Enter(NationalCounter, 1);
-            NationalWaitingTable(Time - ArrivalTime);
-            double srvc_pct = Random() * 100;
-
-            double service_time = 0; // Default value
-            if (srvc_pct >= 0 && srvc_pct <= 12.07) {
-                service_time = 18; // Hodnota pro první rozsah
-            } else if (srvc_pct > 12.07 && srvc_pct <= 74.14) {
-                service_time = 28.25; // Hodnota pro druhý rozsah
-            } else if (srvc_pct > 74.14 && srvc_pct <= 86.21) {
-                service_time = 46.57; // Hodnota pro třetí rozsah
-            } else if (srvc_pct > 86.21) {
-                service_time = 83.38; // Hodnota pro čtvrtý rozsah
-            }
-
-            ServiceTime = Time;
-            Wait(service_time); // obsluha
-            NationalService(Time - ServiceTime);
-            Leave(NationalCounter, 1);
-        } else {
-            Enter(InterCounter, 1);
-            InterWaitingTable(Time - ArrivalTime);
-            double srvc_pct = Random() * 100;
-
-            double service_time = 0; // Default value
-            if (srvc_pct >= 0 && srvc_pct <= 22.58) {
-                service_time = 13.57; // Hodnota pro první rozsah
-            } else if (srvc_pct > 22.58 && srvc_pct <= 67.74) {
-                service_time = 27.89; // Hodnota pro druhý rozsah
-            } else if (srvc_pct > 67.74 && srvc_pct <= 83.87) {
-                service_time = 45.7; // Hodnota pro třetí rozsah
-            } else if (srvc_pct > 83.87) {
-                service_time = 109.1; // Hodnota pro čtvrtý rozsah
-            }
-
-            ServiceTime = Time;
-            Wait(service_time); // obsluha
-            InterService(Time - ServiceTime);
-            Leave(InterCounter, 1);
-        }
+        Table(Time - ArrivalTime);
     }
 };
 
 class Generator : public Event {             // generátor zákazníků
     void Behavior() {                        // --- popis chování  generátorů ---
         (new BaseModelCustomer)->Activate(); // nový zákazník, aktivace v čase time
-        Activate(Time + Exponential(ARRIVAL_TIME));
-        ArrivalTable(Time);
+        Activate(Time + Exponential(4.62));  // příchod cestujících do systému TODO
     }
 };
 
@@ -127,12 +81,9 @@ void argParse(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
-    RandomSeed(time(nullptr));
     argParse(argc, argv);
-
     NationalCounter.SetCapacity(national);
     InterCounter.SetCapacity(international);
-    RandomSeed(time(nullptr));
     int c;
     int i = 0;
     while ((c = args[i++]) != '\0') {
@@ -141,14 +92,12 @@ int main(int argc, char *argv[]) {
             SetOutput("base.out");
             Print(" BASE MODEL \n");
             printf("Začátek simulace...\n");
-            Init(0, (double)SIMULATION_TIME);
+            Init(0, (double)simulation_time);
             (new Generator)->Activate(); // customer generator
             Run();                       // simulation
-            NationalService.Output();
-            InterService.Output();
-            InterWaitingTable.Output();
-            NationalWaitingTable.Output();
-            ArrivalTable.Output();
+            NationalCounter.Output();
+            InterCounter.Output();
+            Table.Output();
             printf("Konec simulace...\n");
             break;
         case 's':

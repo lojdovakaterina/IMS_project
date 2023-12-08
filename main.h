@@ -24,19 +24,23 @@
 #define NATIONAL_SERVICE ((Random() * 100 > 13.79) ? 29.38 : 83.375)
 #define INTER_SERVICE ((Random() * 100 > 15.87) ? 27.46 : 109.1)
 
+#define COUNTER_PCT 37.5 // menší hodnota přepážky procenta
+
 int national = 0;
 int international = 0;
 
 Store InterCounter("Mezinárodní přepážky", 0);
 Store NationalCounter("Vnitrostátní přepážky", 0);
 
-Histogram ArrivalTable("Počty příchodů", 0, 60, 15);    // po minutách
-Histogram NationalWaitingTable("Počty čekání vnitrostátní", 0, 5, 20);
-Histogram InterWaitingTable("Počty čekání mezinárodní", 0, 5, 20);
-Histogram Table("Table", 0, 100, 6);
+// Histogram NationalWaitingTable("Počty čekání vnitrostátní", 0, 5, 20);
+// Histogram InterWaitingTable("Počty čekání mezinárodní", 0, 5, 20);
+Histogram NationalWaitingTable("Počty čekání vnitrostátní", 0, 1, 900);
+Histogram InterWaitingTable("Počty čekání mezinárodní", 0, 1, 900);
 
-Histogram NationalService("Obsluha vnitrostátní", 0, 5, 20);
-Histogram InterService("Obsluha mezinárodní", 0, 5, 22);
+Histogram NationalService("Obsluha vnitrostátní", 0, 900, 1);
+Histogram InterService("Obsluha mezinárodní", 0, 900, 1);
+
+Histogram ArrivalTable("Počty příchodů", 0, 60, 15);    // po minutách
 
 std::string args = "xxxx"; // možné modely
 const char* short_args = "hi:n:bswl";
@@ -51,7 +55,5 @@ struct option long_args[] =
         {"line_divider", no_argument, NULL, 'l'},
         {0, 0, 0, 0} // ukoncovaci prvek
 };
-
-unsigned long long simulation_time = 10 * 60; // 10 minut
 
 #endif // IMS_MAIN_H
