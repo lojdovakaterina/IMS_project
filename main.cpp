@@ -11,145 +11,42 @@
 
 #include "main.h"
 
-<<<<<<< Updated upstream
-class NationalConnections : public Process {
+class BaseModelCustomer : public Process {
     double ArrivalTime;
     void Behavior() {
         ArrivalTime = Time;
-        Enter(NationalCounter, 1);
-        Wait(Exponential(37.13)); // u pokladdny ... exponenciálně?
-        Leave(NationalCounter, 1);
-=======
-class CardPayment : public Process {
-    double ArrivalTime;
-    void Behavior() {
-        ArrivalTime = Time;
-        Enter(InterCounter, 1);
-        Wait(Exponential(45)); // kartou ... exponenciálně?
-        Leave(InterCounter, 1);
->>>>>>> Stashed changes
-        Table(Time - ArrivalTime);
+        Store &counter = (Random() * 100 > 45.39) ? NationalCounter : InterCounter; // ktera prepazka?
+
+        Enter(counter, 1);
+        Wait((Random() * 100 > 42.31) ? 45 : 15); // cekani i platby kartou a hotove
+        Leave(counter, 1);
+
+        // Table(Time - ArrivalTime);
     }
 };
 
-<<<<<<< Updated upstream
-class InternationalConnections : public Process {
-=======
-class CashPayment : public Process {
->>>>>>> Stashed changes
-    double ArrivalTime;
-    void Behavior() {
-        ArrivalTime = Time;
-        Enter(InterCounter, 1);
-<<<<<<< Updated upstream
-        Wait(Exponential(43.58)); // u pokladny ... exponenciálně?
-=======
-        Wait(Exponential(15)); // hotově ... exponenciálně?
->>>>>>> Stashed changes
-        Leave(InterCounter, 1);
-        Table(Time - ArrivalTime);
+class Generator : public Event {             // generátor zákazníků
+    void Behavior() {                        // --- popis chování  generátorů ---
+        (new BaseModelCustomer)->Activate(); // nový zákazník, aktivace v čase time
+        // Activate(Time + Exponential(4.62));  // příchod cestujících do systému TODO
+        Activate(Time + Exponential(60.0 / 13));
+        Table(Time);
     }
 };
 
-<<<<<<< Updated upstream
-class Customer : public Process {
-    double ArrivalTime;
-    void Behavior() { // --- behavoir specification ---
-        ArrivalTime = Time;   // incoming time
-        Wait(180); // 3 minuty ... příchod do systému? ten první čtvereček :D
-        double p = Uniform(0, 100);
-        if (p > 45.39) {
-            (new NationalConnections)->Activate();
-        } else {
-            (new InternationalConnections)->Activate();
-        }
-        Table(Time - ArrivalTime); // waiting and service time
-    }
-};
-
-class Generator : public Event {         // generátor zákazníků
-    void Behavior() {                    // --- popis chování  generátorů ---
-        (new Customer)->Activate();      // nový zákazník, aktivace v čase time
-        Activate(Time + Exponential(5)); // příchod cestujících do systému TODO
-    }
-};
-
-=======
-class NationalConnections : public Process {
-    double ArrivalTime;
-    void Behavior() {
-        ArrivalTime = Time;
-        Enter(NationalCounter, 1);
-        Wait(Exponential(37.13)); // u pokladdny ... exponenciálně?
-        double p = Uniform(0, 100);
-        if (p > 42.31) {
-            Leave(NationalCounter, 1);
-            Table(Time - ArrivalTime);
-            (new CardPayment)->Activate();
-        } else {
-            Leave(NationalCounter, 1);
-            Table(Time - ArrivalTime);
-            (new CashPayment)->Activate();
-        }
-    }
-};
-
-class InternationalConnections : public Process {
-    double ArrivalTime;
-    void Behavior() {
-        ArrivalTime = Time;
-        Enter(InterCounter, 1);
-        Wait(Exponential(43.58)); // u pokladny ... exponenciálně?
-        double p = Uniform(0, 100);
-        if (p > 42.31) {
-            Leave(InterCounter, 1);
-            Table(Time - ArrivalTime);
-            (new CardPayment)->Activate();
-        } else {
-            Leave(InterCounter, 1);
-            Table(Time - ArrivalTime);
-            (new CashPayment)->Activate();
-        }
-    }
-};
-
-class Customer : public Process {
-    double ArrivalTime;
-    void Behavior() {       // --- behavoir specification ---
-        ArrivalTime = Time; // incoming time
-        Wait(180);          // 3 minuty ... příchod do systému? ten první čtvereček :D
-        double p = Uniform(0, 100);
-        if (p > 45.39) {
-            Table(Time - ArrivalTime); // waiting and service time
-            (new NationalConnections)->Activate();
-        } else {
-            Table(Time - ArrivalTime); // waiting and service time
-            (new InternationalConnections)->Activate();
-        }
-    }
-};
-
-class Generator : public Event {         // generátor zákazníků
-    void Behavior() {                    // --- popis chování  generátorů ---
-        (new Customer)->Activate();      // nový zákazník, aktivace v čase time
-        Activate(Time + Exponential(5)); // příchod cestujících do systému TODO
-    }
-};
-
->>>>>>> Stashed changes
 void argParse(int argc, char *argv[]) {
     int c;
     while ((c = getopt_long(argc, argv, short_args, long_args, NULL)) != -1) {
         switch (c) {
         case 'h':
-            printf("Použití: [-i] <hodnota> [-n] <hodnota> [-b] [-sd] [-ld] [-sc]\n" // TODOO
-                   "[-i] [--international] Počet otevřených mezinárodních přepážek\n"
-                   "[-n] [--national] Počet otevřených vnitrostátních přepážek\n"
-                   "[-b] [--base] Základní model\n"
-                   "[-s] [self_checkout] Model přidání automatu na jízdenky\n"
-                   "[-w] [side_window] Model otevření postraní přepážky\n"
-                   "[-l] [line_divider] Model rozdělení fronty\n"
-                   "Parametry [international] [national] jsou povinné a zadávají se v intervalu <1,6>\n");
+            std::cout << "Použití: [-i] <hodnota> [-n] <hodnota> [-b] [-sd] [-ld] [-sc]\n"; // TODOO
+            std::cout << "[-i] [--international] Počet otevřených mezinárodních přepážek\n";
+            std::cout << "[-n] [--national] Počet otevřených vnitrostátních přepážek\n";
+            std::cout << "[-b] [--base] Základní model\n";
+            std::cout << "[-s] [self_checkout] Model přidání automatu na jízdenky\n";
+            std::cout << "[-w] [side_window] Model otevření postraní přepážky\n";
+            std::cout << "[-l] [line_divider] Model rozdělení fronty\n";
+            std::cout << "Parametry [international] [national] jsou povinné a zadávají se v intervalu <1,6>\n";
             std::exit(EXIT_SUCCESS);
         case 'i':
             international = atoi(optarg);
@@ -164,12 +61,12 @@ void argParse(int argc, char *argv[]) {
             if (args.find(c) == std::string::npos) {
                 args += c;
             } else {
-                std::cout << "Vícekrát zadán stejný argument." << std::endl;
+                std::cout << "Vícekrát zadán stejný argument.\n";
                 std::exit(EXIT_FAILURE);
             }
             break;
         default:
-            fprintf(stderr, "Neznámý argument `-%c'.\n", optopt);
+            std::cout << "Neznámý argument.\n";
             std::exit(EXIT_FAILURE);
         }
     }
@@ -195,6 +92,7 @@ int main(int argc, char *argv[]) {
         switch (c) {
         case 'b':
             SetOutput("base.out");
+            Print(" BASE MODEL \n");
             printf("Začátek simulace...\n");
             Init(0, (double)simulation_time);
             (new Generator)->Activate(); // customer generator
