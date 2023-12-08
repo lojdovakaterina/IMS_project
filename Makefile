@@ -12,7 +12,9 @@ $(TARGET): $(BASES_FILES)
 	$(CC) $(FLAGS) -o $(TARGET) $(BASES_FILES) $(SIMLIB)
 
 run: all
-	./$(TARGET) -i 3 -n 3 -b
+	./$(TARGET) -i 2 -n 2 -b
+# 	./$(TARGET) -i 3 -n 4 -argument
+#	./$(TARGET) -i 3 -n 4 -b -b
 
 clean:
 	rm -f $(TARGET)

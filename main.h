@@ -18,15 +18,11 @@
 #include <simlib.h>
 #include <stdio.h>
 
-#define SECOND *c_SECOND
-#define MINUTE *c_MINUTE
-#define HOUR *c_HOUR
-#define DAY *c_DAY
+#define SIMULATION_TIME (15*60) // 15 minut
+#define ARRIVAL_TIME ((15*60)/120) // 15 minut / 120 lidí
 
-const unsigned long long c_SECOND = 1;
-const unsigned long long c_MINUTE = c_SECOND * 60;
-const unsigned long long c_HOUR = c_MINUTE * 60;
-const unsigned long long c_DAY = c_HOUR * 24;
+#define NATIONAL_SERVICE ((Random() * 100 > 13.79) ? 29.38 : 83.375)
+#define INTER_SERVICE ((Random() * 100 > 15.87) ? 27.46 : 109.1)
 
 int national = 0;
 int international = 0;
@@ -34,7 +30,12 @@ int international = 0;
 Store InterCounter("Mezinárodní přepážky", 0);
 Store NationalCounter("Vnitrostátní přepážky", 0);
 
-Histogram Table("Table", 0, 25, 20);
+Histogram ArrivalTable("Počty příchodů", 0, 60, 15);    // po minutách
+Histogram NationalWaitingTable("Počty čekání vnitrostátní", 0, 5, 20);
+Histogram InterWaitingTable("Počty čekání mezinárodní", 0, 5, 20);
+
+Histogram NationalService("Obsluha vnitrostátní", 0, 5, 20);
+Histogram InterService("Obsluha mezinárodní", 0, 5, 22);
 
 std::string args = "xxxx"; // možné modely
 const char* short_args = "hi:n:bswl";
@@ -49,7 +50,5 @@ struct option long_args[] =
         {"line_divider", no_argument, NULL, 'l'},
         {0, 0, 0, 0} // ukoncovaci prvek
 };
-
-unsigned long long simulation_time = 1 DAY;
 
 #endif // IMS_MAIN_H
