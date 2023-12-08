@@ -18,6 +18,7 @@ class BaseModelCustomer : public Process {
         ArrivalTime = Time;
         double rnd = Random();
         Store &counter = (rnd *100 > 37.5) ? NationalCounter : InterCounter; // ktera prepazka?
+        Store &counter = (Random() * 100 > 45.39) ? NationalCounter : InterCounter; // ktera prepazka?
 
         Enter(counter, 1);
         (rnd * 100 > 25.26) ? NationalWaitingTable(Time - ArrivalTime) : InterWaitingTable(Time - ArrivalTime);
@@ -27,12 +28,25 @@ class BaseModelCustomer : public Process {
         Leave(counter, 1);
     }
 };
+        Enter(counter, 1);
+        Wait((Random() * 100 > 42.31) ? 45 : 15); // cekani i platby kartou a hotove
+        Leave(counter, 1);
 
 class Generator : public Event {             // generátor zákazníků
     void Behavior() {                        // --- popis chování  generátorů ---
         (new BaseModelCustomer)->Activate(); // nový zákazník, aktivace v čase time
         Activate(Time + Exponential(ARRIVAL_TIME));
         ArrivalTable(Time);
+        // Table(Time - ArrivalTime);
+    }
+};
+
+class Generator : public Event {             // generátor zákazníků
+    void Behavior() {                        // --- popis chování  generátorů ---
+        (new BaseModelCustomer)->Activate(); // nový zákazník, aktivace v čase time
+        // Activate(Time + Exponential(4.62));  // příchod cestujících do systému TODO
+        Activate(Time + Exponential(60.0 / 13));
+        Table(Time);
     }
 };
 

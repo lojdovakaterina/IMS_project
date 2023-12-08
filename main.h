@@ -33,6 +33,7 @@ Store NationalCounter("Vnitrostátní přepážky", 0);
 Histogram ArrivalTable("Počty příchodů", 0, 60, 15);    // po minutách
 Histogram NationalWaitingTable("Počty čekání vnitrostátní", 0, 5, 20);
 Histogram InterWaitingTable("Počty čekání mezinárodní", 0, 5, 20);
+Histogram Table("Table", 0, 100, 6);
 
 Histogram NationalService("Obsluha vnitrostátní", 0, 5, 20);
 Histogram InterService("Obsluha mezinárodní", 0, 5, 22);
@@ -50,5 +51,7 @@ struct option long_args[] =
         {"line_divider", no_argument, NULL, 'l'},
         {0, 0, 0, 0} // ukoncovaci prvek
 };
+
+unsigned long long simulation_time = 10 * 60; // 10 minut
 
 #endif // IMS_MAIN_H
