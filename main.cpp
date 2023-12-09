@@ -1,8 +1,8 @@
-////////////////////////////////////////////////////////////////////////////
-// Model MODEL5                   SIMLIB/C++
-//
-// Example of 2 facilities with single queue (random)
-//
+/**
+ * @file main.cpp
+ * @author Andrea Michlíková, Kateřina Lojdová
+ * @brief
+ */
 
 #include "main.h"
 
@@ -11,9 +11,6 @@ class CustomerNational : public Process { // customer description
     double ServiceTime;
     int CounterNum;   // Counter to use
     void Behavior() { // --- customer behavior ---
-        // ArrivalTable(Time);
-        // NArrivalTable(Time);
-
         double srvc_pct = Random() * 100;
         double service_time = 0; // Default value
         if (srvc_pct >= 0 && srvc_pct <= 12.07) {
@@ -34,25 +31,23 @@ class CustomerNational : public Process { // customer description
 
         // check for empty counter
         CounterNum = -1;
-        for(int i = 0; i < national; i++){
-            if (!NationalCounter[i].Busy()){
+        for (int i = 0; i < national; i++) {
+            if (!NationalCounter[i].Busy()) {
                 CounterNum = i;
                 break;
             }
         }
 
         if (CounterNum == -1) {
-            // CounterNum = (Random() < 0.5) ? 0 : 1;
-            // if (NationalCounter[CounterNum].Busy()) {
             Into(NationalQueue); // go into queue
             Passivate();         // sleep
-            for(int i = 0; i < national; i++){
-                if (!NationalCounter[i].Busy()){
+            for (int i = 0; i < national; i++) {
+                if (!NationalCounter[i].Busy()) {
                     CounterNum = i;
                     break;
                 }
             }
-            if(CounterNum == -1){
+            if (CounterNum == -1) {
                 printf("HELP N\n");
             }
         }
@@ -69,23 +64,6 @@ class CustomerNational : public Process { // customer description
             z->Activate(); // wake-up
             NationalWaitingTable(Time - ArrivalTime);
         }
-        // Table(Time - ArrivalTime); // record total time
-
-        // if (NationalCounter[0].In() == this)
-        //     Release(NationalCounter[0]);  // end service
-        // else Release(NationalCounter[1]); // end service
-
-        // if queue contains a customer for released Counter, activate it
-        // for (Queue::iterator p = NationalQueue.begin();
-        //      p != NationalQueue.end();
-        //      ++p) {
-        //     CustomerNational *z = (CustomerNational *)(*p);
-        //     if (z->CounterNum == CounterNum) {
-        //         z->Out();      // remove z from queue
-        //         z->Activate(); // wake-up
-        //         break;
-        //     }
-        // }                          // for
     }
 
 public:
@@ -99,9 +77,6 @@ class CustomerInter : public Process { // customer description
     double ServiceTime;
     int CounterNum;   // Counter to use
     void Behavior() { // --- customer behavior ---
-        // ArrivalTable(Time);
-        // IArrivalTable(Time);
-
         double srvc_pct = Random() * 100;
         double service_time = 0; // Default value
         if (srvc_pct >= 0 && srvc_pct <= 22.58) {
@@ -119,12 +94,9 @@ class CustomerInter : public Process { // customer description
         }
 
         ArrivalTime = Time; // mark start time
-        // CounterNum = (Random() < 0.5) ? 0 : 1;
-        // if (InterCounter[CounterNum].Busy()) {
-
         CounterNum = -1;
-        for(int i = 0; i < international; i++){
-            if (!InterCounter[i].Busy()){
+        for (int i = 0; i < international; i++) {
+            if (!InterCounter[i].Busy()) {
                 CounterNum = i;
                 break;
             }
@@ -133,13 +105,13 @@ class CustomerInter : public Process { // customer description
         if (CounterNum == -1) {
             Into(InterQueue); // go into queue
             Passivate();      // sleep
-            for(int i = 0; i < international; i++){
-                if (!InterCounter[i].Busy()){
+            for (int i = 0; i < international; i++) {
+                if (!InterCounter[i].Busy()) {
                     CounterNum = i;
                     break;
                 }
             }
-            if(CounterNum == -1){
+            if (CounterNum == -1) {
                 printf("HELP I\n");
             }
         }
@@ -157,22 +129,6 @@ class CustomerInter : public Process { // customer description
             z->Activate(); // wake-up
             InterWaitingTable(Time - ArrivalTime);
         }
-        // if (InterCounter[0].In() == this)
-        //     Release(InterCounter[0]); // end service
-        // else
-        //     Release(InterCounter[1]); // end service
-
-        // if queue contains a customer for released Counter, activate it
-        // for (Queue::iterator p = InterQueue.begin();
-        //      p != InterQueue.end();
-        //      ++p) {
-        //     CustomerInter *z = (CustomerInter *)(*p);
-        //     if (z->CounterNum == CounterNum) {
-        //         z->Out();      // remove z from queue
-        //         z->Activate(); // wake-up
-        //         break;
-        //     }
-        // }                          // for
     }
 
 public:
@@ -204,20 +160,27 @@ void argParse(int argc, char *argv[]) {
     while ((c = getopt_long(argc, argv, short_args, long_args, NULL)) != -1) {
         switch (c) {
         case 'h':
-            std::cout << "Použití: [-i] <hodnota> [-n] <hodnota> [-b] [-sd] [-ld] [-sc]\n"; // TODOO
-            std::cout << "[-i] [--international] Počet otevřených mezinárodních přepážek\n";
-            std::cout << "[-n] [--national] Počet otevřených vnitrostátních přepážek\n";
+            std::cout << "Použití: [-i] <hodnota> [-n] <hodnota> [-t] <hodnota> [-p] <hodnota> [-b] [-sd] [-ld] [-sc]\n"; // TODOO
+            std::cout << "[-i] [--international] Počet otevřených mezinárodních přepážek\n---> Povinné v intervalu <1,4>\n";
+            std::cout << "[-n] [--national] Počet otevřených vnitrostátních přepážek\n---> Povinné v intervalu <1,4>\n";
+            std::cout << "[-t] [--time] Simulační čas v minutách\n";
+            std::cout << "[-p] [--people] Počet příchozích osob\n";
             std::cout << "[-b] [--base] Základní model\n";
-            std::cout << "[-s] [self_checkout] Model přidání automatu na jízdenky\n";
-            std::cout << "[-w] [side_window] Model otevření postraní přepážky\n";
-            std::cout << "[-l] [line_divider] Model rozdělení fronty\n";
-            std::cout << "Parametry [international] [national] jsou povinné a zadávají se v intervalu <1,6>\n";
+            std::cout << "[-s] [--self_checkout] Model přidání automatu na jízdenky\n";
+            std::cout << "[-w] [--side_window] Model otevření postraní přepážky\n";
+            std::cout << "[-l] [--line_divider] Model rozdělení fronty\n";
             std::exit(EXIT_SUCCESS);
         case 'i':
             international = atoi(optarg);
             break;
         case 'n':
             national = atoi(optarg);
+            break;
+        case 't':
+            sim_time = atoi(optarg) * 60;
+            break;
+        case 'p':
+            people = atoi(optarg);
             break;
         case 'b':
         case 's':
@@ -248,15 +211,17 @@ void argParse(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
-    RandomSeed(time(nullptr));
+    RandomSeed(time(nullptr)); // different outputs
     argParse(argc, argv);
-
-    // NationalCounter.SetCapacity(national);
-    // InterCounter.SetCapacity(international);
-
-    // RandomSeed(time(nullptr));
     int c;
     int i = 0;
+
+    // set histogram
+    InterWaitingTable.Init(0, SIMULATION_TIME, 1);
+    NationalWaitingTable.Init(0, SIMULATION_TIME, 1);
+    IArrivalTable.Init(0, SIMULATION_TIME, 1);
+    NArrivalTable.Init(0, SIMULATION_TIME, 1);
+
     while ((c = args[i++]) != '\0') {
         switch (c) {
         case 'b':
@@ -264,40 +229,39 @@ int main(int argc, char *argv[]) {
             Print(" BASE MODEL \n");
             printf("Začátek simulace...\n");
 
-            for(int i= 0; i < international; i++){
+            for (int i = 0; i < international; i++) {
                 char buffer[12];
                 std::sprintf(buffer, "CounterI[%d]", i);
                 InterCounter[i].SetName(buffer);
             }
 
-            for(int i= 0; i < national; i++){
+            for (int i = 0; i < national; i++) {
                 char buffer[12];
                 std::sprintf(buffer, "CounterN[%d]", i);
                 NationalCounter[i].SetName(buffer);
             }
 
-            Init(0, SIMULATION_TIME); // init experiment, time:0..1000
+            Init(0, SIMULATION_TIME); // init experiment
             new Generator;            // create and activate generator
 
             Run(); // simulation run
             // print reports:
-            for(int i= 0; i < international; i++){
+            for (int i = 0; i < international; i++) {
                 InterCounter[i].Output();
             }
-            for(int i= 0; i < national; i++){
+            for (int i = 0; i < national; i++) {
                 NationalCounter[i].Output();
             }
 
-            InterQueue.Output();
-            NationalQueue.Output();
-
-            NationalService.Output();
-            InterService.Output();
+            // NationalService.Output();
+            // InterService.Output();
             InterWaitingTable.Output();
             NationalWaitingTable.Output();
-            ArrivalTable.Output();
             IArrivalTable.Output();
             NArrivalTable.Output();
+            // ArrivalTable.Output();
+            InterQueue.Output();
+            NationalQueue.Output();
 
             printf("Konec simulace...\n");
             break;
