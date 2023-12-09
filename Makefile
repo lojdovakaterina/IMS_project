@@ -13,6 +13,7 @@ $(TARGET): $(BASES_FILES)
 
 run: all
 	./$(TARGET) -i 2 -n 2 -b
+#	./$(TARGET) -i 2 -n 4 -b
 # 	./$(TARGET) -i 3 -n 4 -argument
 #	./$(TARGET) -i 3 -n 4 -b -b
 

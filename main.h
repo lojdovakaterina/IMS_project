@@ -44,9 +44,9 @@ Histogram ArrivalTable("Počty příchodů", 0, 60, 15);               // po min
 Histogram NArrivalTable("Počty příchodů vnitrostátní", 0, 60, 15); // po minutách
 Histogram IArrivalTable("Počty příchodů mezinárodní", 0, 60, 15);  // po minutách
 
-Facility InterCounter[2];
+Facility InterCounter[4];
 Queue InterQueue("Čekání Mezinárodní");
-Facility NationalCounter[2];
+Facility NationalCounter[6];
 Queue NationalQueue("Čekání Vnitrostátní");
 
 std::string args = "xxxx"; // možné modely

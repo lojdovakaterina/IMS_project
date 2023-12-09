@@ -28,27 +28,29 @@ class CustomerNational : public Process { // customer description
 
         ArrivalTime = Time; // mark start time
 
+        // check for empty counter
         CounterNum = -1;
-        if (!NationalCounter[0].Busy())
-            // Seize(NationalCounter[0]); // box0 first (priority)
-            CounterNum = 0;
-        else if (!NationalCounter[1].Busy())
-            // Seize(NationalCounter[1]); // box1 second
-            CounterNum = 1;
+        for(int i = 0; i < national; i++){
+            if (!NationalCounter[i].Busy()){
+                CounterNum = i;
+                break;
+            }
+        }
 
         if (CounterNum == -1) {
             // CounterNum = (Random() < 0.5) ? 0 : 1;
             // if (NationalCounter[CounterNum].Busy()) {
             Into(NationalQueue); // go into queue
             Passivate();         // sleep
-            if (!NationalCounter[0].Busy())
-                // Seize(NationalCounter[0]); // box0 first (priority)
-                CounterNum = 0;
-            else if (!NationalCounter[1].Busy())
-                // Seize(NationalCounter[1]); // box1 second
-                CounterNum = 1;
-            else
+            for(int i = 0; i < national; i++){
+                if (!NationalCounter[i].Busy()){
+                    CounterNum = i;
+                    break;
+                }
+            }
+            if(CounterNum == -1){
                 printf("HELP N\n");
+            }
         }
 
         Seize(NationalCounter[CounterNum]); // start service
@@ -94,7 +96,6 @@ class CustomerInter : public Process { // customer description
     int CounterNum;   // Counter to use
     void Behavior() { // --- customer behavior ---
         // ArrivalTable(Time);
-
         // IArrivalTable(Time);
 
         double srvc_pct = Random() * 100;
@@ -114,24 +115,25 @@ class CustomerInter : public Process { // customer description
         // if (InterCounter[CounterNum].Busy()) {
 
         CounterNum = -1;
-        if (!InterCounter[0].Busy())
-            // Seize(InterCounter[0]); // box0 first (priority)
-            CounterNum = 0;
-        else if (!InterCounter[1].Busy())
-            // Seize(InterCounter[1]); // box1 second
-            CounterNum = 1;
+        for(int i = 0; i < international; i++){
+            if (!InterCounter[i].Busy()){
+                CounterNum = i;
+                break;
+            }
+        }
 
         if (CounterNum == -1) {
             Into(InterQueue); // go into queue
             Passivate();      // sleep
-            if (!InterCounter[0].Busy())
-                // Seize(InterCounter[0]); // box0 first (priority)
-                CounterNum = 0;
-            else if (!InterCounter[1].Busy())
-                // Seize(InterCounter[1]); // box1 second
-                CounterNum = 1;
-            else
+            for(int i = 0; i < international; i++){
+                if (!InterCounter[i].Busy()){
+                    CounterNum = i;
+                    break;
+                }
+            }
+            if(CounterNum == -1){
                 printf("HELP I\n");
+            }
         }
         Seize(InterCounter[CounterNum]); // start service
 
@@ -254,20 +256,30 @@ int main(int argc, char *argv[]) {
             Print(" BASE MODEL \n");
             printf("Začátek simulace...\n");
 
-            InterCounter[0].SetName("CounterI[0]");
-            InterCounter[1].SetName("CounterI[1]");
-            NationalCounter[0].SetName("CounterN[0]");
-            NationalCounter[1].SetName("CounterN[1]");
+            for(int i= 0; i < international; i++){
+                char buffer[12];
+                std::sprintf(buffer, "CounterI[%d]", i);
+                InterCounter[i].SetName(buffer);
+            }
+
+            for(int i= 0; i < national; i++){
+                char buffer[12];
+                std::sprintf(buffer, "CounterN[%d]", i);
+                NationalCounter[i].SetName(buffer);
+            }
 
             Init(0, SIMULATION_TIME); // init experiment, time:0..1000
             new Generator;            // create and activate generator
 
             Run(); // simulation run
             // print reports:
-            InterCounter[0].Output();
-            InterCounter[1].Output();
-            NationalCounter[0].Output();
-            NationalCounter[1].Output();
+            for(int i= 0; i < international; i++){
+                InterCounter[i].Output();
+            }
+            for(int i= 0; i < national; i++){
+                NationalCounter[i].Output();
+            }
+
             InterQueue.Output();
             NationalQueue.Output();
 
