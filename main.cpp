@@ -1,80 +1,191 @@
-/**
- * @file main.cpp
- * @author your name (you@domain.com)
- * @brief
- * @version 0.1
- * @date 2023-12-06
- *
- * @copyright Copyright (c) 2023
- *
- */
+////////////////////////////////////////////////////////////////////////////
+// Model MODEL5                   SIMLIB/C++
+//
+// Example of 2 facilities with single queue (random)
+//
 
 #include "main.h"
 
-class BaseModelCustomer : public Process {
-    double ArrivalTime;
+class CustomerNational : public Process { // customer description
+    double ArrivalTime;                   // start time
     double ServiceTime;
-    void Behavior() {
-        ArrivalTime = Time;
-        double rnd_pct = Random() * 100;
-        // Store &counter = (rnd_pct > COUNTER_PCT) ? NationalCounter : InterCounter; // ktera prepazka?
+    int CounterNum;   // Counter to use
+    void Behavior() { // --- customer behavior ---
+        // ArrivalTable(Time);
+        // NArrivalTable(Time);
 
-        // Enter(counter, 1);
-        // (rnd_pct > COUNTER_PCT) ? NationalWaitingTable(Time - ArrivalTime) : InterWaitingTable(Time - ArrivalTime);
-        // ServiceTime = Time;
-        // Wait((rnd_pct > COUNTER_PCT) ? NATIONAL_SERVICE : INTER_SERVICE); // obsluha
-        // (rnd_pct > COUNTER_PCT) ? NationalService(Time - ServiceTime) : InterService(Time - ServiceTime);
-        // Leave(counter, 1);
-
-        if (rnd_pct > COUNTER_PCT){
-            Enter(NationalCounter, 1);
-            NationalWaitingTable(Time - ArrivalTime);
-            double srvc_pct = Random() * 100;
-
-            double service_time = 0; // Default value
-            if (srvc_pct >= 0 && srvc_pct <= 12.07) {
-                service_time = 18; // Hodnota pro první rozsah
-            } else if (srvc_pct > 12.07 && srvc_pct <= 74.14) {
-                service_time = 28.25; // Hodnota pro druhý rozsah
-            } else if (srvc_pct > 74.14 && srvc_pct <= 86.21) {
-                service_time = 46.57; // Hodnota pro třetí rozsah
-            } else if (srvc_pct > 86.21) {
-                service_time = 83.38; // Hodnota pro čtvrtý rozsah
-            }
-
-            ServiceTime = Time;
-            Wait(service_time); // obsluha
-            NationalService(Time - ServiceTime);
-            Leave(NationalCounter, 1);
-        } else {
-            Enter(InterCounter, 1);
-            InterWaitingTable(Time - ArrivalTime);
-            double srvc_pct = Random() * 100;
-
-            double service_time = 0; // Default value
-            if (srvc_pct >= 0 && srvc_pct <= 22.58) {
-                service_time = 13.57; // Hodnota pro první rozsah
-            } else if (srvc_pct > 22.58 && srvc_pct <= 67.74) {
-                service_time = 27.89; // Hodnota pro druhý rozsah
-            } else if (srvc_pct > 67.74 && srvc_pct <= 83.87) {
-                service_time = 45.7; // Hodnota pro třetí rozsah
-            } else if (srvc_pct > 83.87) {
-                service_time = 109.1; // Hodnota pro čtvrtý rozsah
-            }
-
-            ServiceTime = Time;
-            Wait(service_time); // obsluha
-            InterService(Time - ServiceTime);
-            Leave(InterCounter, 1);
+        double srvc_pct = Random() * 100;
+        double service_time = 0; // Default value
+        if (srvc_pct >= 0 && srvc_pct <= 12.07) {
+            service_time = 18; // Hodnota pro první rozsah
+        } else if (srvc_pct > 12.07 && srvc_pct <= 74.14) {
+            service_time = 28.25; // Hodnota pro druhý rozsah
+        } else if (srvc_pct > 74.14 && srvc_pct <= 86.21) {
+            service_time = 46.57; // Hodnota pro třetí rozsah
+        } else if (srvc_pct > 86.21) {
+            service_time = 83.38; // Hodnota pro čtvrtý rozsah
         }
-    }
-};
 
-class Generator : public Event {             // generátor zákazníků
-    void Behavior() {                        // --- popis chování  generátorů ---
-        (new BaseModelCustomer)->Activate(); // nový zákazník, aktivace v čase time
+        ArrivalTime = Time; // mark start time
+
+        CounterNum = -1;
+        if (!NationalCounter[0].Busy())
+            // Seize(NationalCounter[0]); // box0 first (priority)
+            CounterNum = 0;
+        else if (!NationalCounter[1].Busy())
+            // Seize(NationalCounter[1]); // box1 second
+            CounterNum = 1;
+
+        if (CounterNum == -1) {
+            // CounterNum = (Random() < 0.5) ? 0 : 1;
+            // if (NationalCounter[CounterNum].Busy()) {
+            Into(NationalQueue); // go into queue
+            Passivate();         // sleep
+            if (!NationalCounter[0].Busy())
+                // Seize(NationalCounter[0]); // box0 first (priority)
+                CounterNum = 0;
+            else if (!NationalCounter[1].Busy())
+                // Seize(NationalCounter[1]); // box1 second
+                CounterNum = 1;
+            else
+                printf("HELP N\n");
+        }
+
+        Seize(NationalCounter[CounterNum]); // start service
+
+        ServiceTime = Time;
+        Wait(service_time);
+        NationalService(Time - ServiceTime);
+        Release(NationalCounter[CounterNum]); // end service
+        if (!NationalQueue.empty()) {
+            CustomerNational *z = (CustomerNational *)(NationalQueue.front());
+            z->Out();      // remove z from queue
+            z->Activate(); // wake-up
+            NationalWaitingTable(Time - ArrivalTime);
+        }
+        // Table(Time - ArrivalTime); // record total time
+
+        // if (NationalCounter[0].In() == this)
+        //     Release(NationalCounter[0]);  // end service
+        // else Release(NationalCounter[1]); // end service
+
+        // if queue contains a customer for released Counter, activate it
+        // for (Queue::iterator p = NationalQueue.begin();
+        //      p != NationalQueue.end();
+        //      ++p) {
+        //     CustomerNational *z = (CustomerNational *)(*p);
+        //     if (z->CounterNum == CounterNum) {
+        //         z->Out();      // remove z from queue
+        //         z->Activate(); // wake-up
+        //         break;
+        //     }
+        // }                          // for
+    }
+
+public:
+    CustomerNational() {
+        Activate();
+    }
+}; // Customer
+
+class CustomerInter : public Process { // customer description
+    double ArrivalTime;                // start time
+    double ServiceTime;
+    int CounterNum;   // Counter to use
+    void Behavior() { // --- customer behavior ---
+        // ArrivalTable(Time);
+
+        // IArrivalTable(Time);
+
+        double srvc_pct = Random() * 100;
+        double service_time = 0; // Default value
+        if (srvc_pct >= 0 && srvc_pct <= 22.58) {
+            service_time = 13.57; // Hodnota pro první rozsah
+        } else if (srvc_pct > 22.58 && srvc_pct <= 67.74) {
+            service_time = 27.89; // Hodnota pro druhý rozsah
+        } else if (srvc_pct > 67.74 && srvc_pct <= 83.87) {
+            service_time = 45.7; // Hodnota pro třetí rozsah
+        } else if (srvc_pct > 83.87) {
+            service_time = 109.1; // Hodnota pro čtvrtý rozsah
+        }
+
+        ArrivalTime = Time; // mark start time
+        // CounterNum = (Random() < 0.5) ? 0 : 1;
+        // if (InterCounter[CounterNum].Busy()) {
+
+        CounterNum = -1;
+        if (!InterCounter[0].Busy())
+            // Seize(InterCounter[0]); // box0 first (priority)
+            CounterNum = 0;
+        else if (!InterCounter[1].Busy())
+            // Seize(InterCounter[1]); // box1 second
+            CounterNum = 1;
+
+        if (CounterNum == -1) {
+            Into(InterQueue); // go into queue
+            Passivate();      // sleep
+            if (!InterCounter[0].Busy())
+                // Seize(InterCounter[0]); // box0 first (priority)
+                CounterNum = 0;
+            else if (!InterCounter[1].Busy())
+                // Seize(InterCounter[1]); // box1 second
+                CounterNum = 1;
+            else
+                printf("HELP I\n");
+        }
+        Seize(InterCounter[CounterNum]); // start service
+
+        ServiceTime = Time;
+        Wait(service_time);
+        InterService(Time - ServiceTime);
+
+        Release(InterCounter[CounterNum]); // end service
+
+        if (!InterQueue.empty()) {
+            CustomerInter *z = (CustomerInter *)(InterQueue.front());
+            z->Out();      // remove z from queue
+            z->Activate(); // wake-up
+            InterWaitingTable(Time - ArrivalTime);
+        }
+        // if (InterCounter[0].In() == this)
+        //     Release(InterCounter[0]); // end service
+        // else
+        //     Release(InterCounter[1]); // end service
+
+        // if queue contains a customer for released Counter, activate it
+        // for (Queue::iterator p = InterQueue.begin();
+        //      p != InterQueue.end();
+        //      ++p) {
+        //     CustomerInter *z = (CustomerInter *)(*p);
+        //     if (z->CounterNum == CounterNum) {
+        //         z->Out();      // remove z from queue
+        //         z->Activate(); // wake-up
+        //         break;
+        //     }
+        // }                          // for
+    }
+
+public:
+    CustomerInter() { Activate(); }
+}; // Customer
+
+class Generator : public Event { // generator of customers
+    void Behavior() {            // --- customer behavior ---
+        double rnd_pct = Random() * 100;
+        if (rnd_pct > COUNTER_PCT) {
+            NArrivalTable(Time);
+            new CustomerNational; // create new customer
+        } else {
+            IArrivalTable(Time);
+            new CustomerInter; // create new customer
+        }
         Activate(Time + Exponential(ARRIVAL_TIME));
         ArrivalTable(Time);
+    }
+
+public:
+    Generator() {
+        Activate();
     }
 };
 
@@ -130,9 +241,10 @@ int main(int argc, char *argv[]) {
     RandomSeed(time(nullptr));
     argParse(argc, argv);
 
-    NationalCounter.SetCapacity(national);
-    InterCounter.SetCapacity(international);
-    RandomSeed(time(nullptr));
+    // NationalCounter.SetCapacity(national);
+    // InterCounter.SetCapacity(international);
+
+    // RandomSeed(time(nullptr));
     int c;
     int i = 0;
     while ((c = args[i++]) != '\0') {
@@ -141,14 +253,32 @@ int main(int argc, char *argv[]) {
             SetOutput("base.out");
             Print(" BASE MODEL \n");
             printf("Začátek simulace...\n");
-            Init(0, (double)SIMULATION_TIME);
-            (new Generator)->Activate(); // customer generator
-            Run();                       // simulation
+
+            InterCounter[0].SetName("CounterI[0]");
+            InterCounter[1].SetName("CounterI[1]");
+            NationalCounter[0].SetName("CounterN[0]");
+            NationalCounter[1].SetName("CounterN[1]");
+
+            Init(0, SIMULATION_TIME); // init experiment, time:0..1000
+            new Generator;            // create and activate generator
+
+            Run(); // simulation run
+            // print reports:
+            InterCounter[0].Output();
+            InterCounter[1].Output();
+            NationalCounter[0].Output();
+            NationalCounter[1].Output();
+            InterQueue.Output();
+            NationalQueue.Output();
+
             NationalService.Output();
             InterService.Output();
             InterWaitingTable.Output();
             NationalWaitingTable.Output();
             ArrivalTable.Output();
+            IArrivalTable.Output();
+            NArrivalTable.Output();
+
             printf("Konec simulace...\n");
             break;
         case 's':
