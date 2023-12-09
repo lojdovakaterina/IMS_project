@@ -6,6 +6,8 @@
 
 #include "main.h"
 
+using namespace std;
+
 class CustomerNational : public Process { // customer description
     double ArrivalTime;                   // start time
     double ServiceTime;
@@ -68,6 +70,140 @@ class CustomerNational : public Process { // customer description
 
 public:
     CustomerNational() {
+        Activate();
+    }
+}; // Customer
+
+class CustomerNationalTwoLines : public Process { // customer description
+    double ArrivalTime;                   // start time
+    double ServiceTime;
+    int CounterNum;   // Counter to use
+    void Behavior() { // --- customer behavior ---
+        std::cout << "BEHAVIOR" << endl;
+        double srvc_pct = Random() * 100;
+        // determine how long will it take to take care of the customer
+        double service_time = 0; // Default value
+        if (srvc_pct >= 0 && srvc_pct <= 12.07) {
+            service_time = std::max((double)1, Normal(18.3, 1));
+            // service_time = 18; // Hodnota pro první rozsah
+        } else if (srvc_pct > 12.07 && srvc_pct <= 74.14) {
+            service_time = std::max((double)1, Normal(28.25, 5.12));
+            // service_time = 28.25; // Hodnota pro druhý rozsah
+        } else if (srvc_pct > 74.14 && srvc_pct <= 86.21) {
+            service_time = std::max((double)1, Normal(46.57, 6.19));
+            // service_time = 46.57; // Hodnota pro třetí rozsah
+        } else if (srvc_pct > 86.21) {
+            service_time = std::max((double)1, Normal(83.38, 32.12));
+            // service_time = 83.38; // Hodnota pro čtvrtý rozsah
+        }
+
+        ArrivalTime = Time; // mark start time
+        int chosen_line = 0;
+
+        // if both queues are empty, choose one at random
+        if(NationalSplitQueueLeft.empty() && NationalSplitQueueRight.empty()){
+            std::cout << "queues empty" << endl;
+            double rnd_pct = Random() * 100;
+            if(rnd_pct > 50){
+                std::cout << "random left" << endl;
+                chosen_line = GO_LEFT; // go left
+            }else{
+                std::cout << "random right" << endl;
+                chosen_line = GO_RIGHT; // go right
+            }
+        //if left has fewer people waiting, choose left
+        }else if(NationalSplitQueueLeft.Length() < NationalSplitQueueRight.Length()){
+            std::cout << "left shorter" << endl;
+            chosen_line = GO_LEFT;
+        }else{
+            std::cout << "right shorter" << endl;
+            chosen_line = GO_RIGHT;
+        }
+
+        if (chosen_line == GO_LEFT) {
+            std::cout << "go left" << endl;
+            // LEFT LINE
+            CounterNum = -1;
+            for (int i = 3; i < 3 + nationalLeft; i++) {
+                std::cout << "try national counter L " << i << endl;
+                if (!NationalCounter[i].Busy()) {
+                    CounterNum = i;
+                    break;
+                }
+            }
+
+            if (CounterNum == -1) {
+                Into(NationalSplitQueueLeft); // go into queue
+                Passivate();         // sleep
+                for (int i = 3; i < 3 + nationalLeft; i++) {
+                    if (!NationalCounter[i].Busy()) {
+                        std::cout << "try national counter L " << i << " vol2" << endl;
+                        CounterNum = i;
+                        break;
+                    }
+                }
+                if (CounterNum == -1) {
+                    printf("HELP N\n");
+                }
+            }
+
+            std::cout << "seize counter" << endl;
+            Seize(NationalCounter[CounterNum]); // start service
+
+            ServiceTime = Time;
+            Wait(service_time);
+            NationalServiceLeft(Time - ServiceTime);
+            Release(NationalCounter[CounterNum]); // end service
+            if (!NationalSplitQueueLeft.empty()) {
+                CustomerNational *z = (CustomerNational *)(NationalSplitQueueLeft.front());
+                z->Out();      // remove z from queue
+                z->Activate(); // wake-up
+                NationalWaitingTableLeft(Time - ArrivalTime);
+            }
+        } else {
+            std::cout << "go right" << endl;
+            //RIGHT LINE
+            CounterNum = -1;
+            for (int i = 0; i < nationalRight; i++) {
+                std::cout << "try national counter R " << i << endl;
+                if (!NationalCounter[i].Busy()) {
+                    CounterNum = i;
+                    break;
+                }
+            }
+
+            if (CounterNum == -1) {
+                Into(NationalSplitQueueRight); // go into queue
+                Passivate();         // sleep
+                for (int i = 0; i < nationalRight; i++) {
+                    std::cout << "try national counter R " << i << " vol2" << endl;
+                    if (!NationalCounter[i].Busy()) {
+                        CounterNum = i;
+                        break;
+                    }
+                }
+                if (CounterNum == -1) {
+                    printf("HELP N\n");
+                }
+            }
+
+            Seize(NationalCounter[CounterNum]); // start service
+
+            ServiceTime = Time;
+            Wait(service_time);
+            NationalServiceRight(Time - ServiceTime);
+            Release(NationalCounter[CounterNum]); // end service
+            if (!NationalSplitQueueRight.empty()) {
+                CustomerNational *z = (CustomerNational *)(NationalSplitQueueRight.front());
+                z->Out();      // remove z from queue
+                z->Activate(); // wake-up
+                NationalWaitingTableRight(Time - ArrivalTime);
+            }
+        }
+    }
+
+public:
+    CustomerNationalTwoLines() {
         Activate();
     }
 }; // Customer
@@ -140,7 +276,11 @@ class Generator : public Event { // generator of customers
         double rnd_pct = Random() * 100;
         if (rnd_pct > COUNTER_PCT) {
             NArrivalTable(Time);
-            new CustomerNational; // create new customer
+            if(nationalLeft != 0){
+                new CustomerNationalTwoLines; // create new customer for model with two lines
+            }else{
+                new CustomerNational; // create new customer for base model
+            }
         } else {
             IArrivalTable(Time);
             new CustomerInter; // create new customer
@@ -168,7 +308,7 @@ void argParse(int argc, char *argv[]) {
             std::cout << "[-b] [--base] Základní model\n";
             std::cout << "[-s] [--self_checkout] Model přidání automatu na jízdenky\n";
             std::cout << "[-w] [--side_window] Model otevření postraní přepážky\n";
-            std::cout << "[-l] [--line_divider] Model rozdělení fronty\n";
+            std::cout << "[-l] [--line_divider] Model rozdělení fronty\n---> Povinné v intervalu <1,3> <1,3> (L a R prepazky)\n";
             std::exit(EXIT_SUCCESS);
         case 'i':
             international = atoi(optarg);
@@ -182,10 +322,24 @@ void argParse(int argc, char *argv[]) {
         case 'p':
             people = atoi(optarg);
             break;
+        case 'l':{
+            cout << "found -l" << endl;
+            if(optarg == nullptr){
+                std::cout << "Chybi argumenty argument pro volbu -l.\n";
+                std::exit(EXIT_FAILURE);
+            }
+            std::istringstream iss(optarg);
+            if(!(iss >> nationalLeft >> nationalRight) || !iss.eof()){
+                std::cout << "Nespravny pocet argumentu pro volbu -l.\n";
+                std::exit(EXIT_FAILURE);
+            }
+            cout << "made it through sscanf" << endl;
+            cout << nationalLeft << endl;
+            cout << nationalRight << endl;
+        }
         case 'b':
         case 's':
         case 'w':
-        case 'l':
             if (args.find(c) == std::string::npos) {
                 args += c;
             } else {
@@ -211,14 +365,19 @@ void argParse(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
+    cout << "inside main" << endl;
     RandomSeed(time(nullptr)); // different outputs
+    cout << "gonna parse arguments" << endl;
     argParse(argc, argv);
+    cout << "Parsed arguments" << endl;
     int c;
     int i = 0;
 
     // set histogram
     InterWaitingTable.Init(0, SIMULATION_TIME, 1);
     NationalWaitingTable.Init(0, SIMULATION_TIME, 1);
+    NationalWaitingTableRight.Init(0, SIMULATION_TIME, 1);
+    NationalWaitingTableLeft.Init(0, SIMULATION_TIME, 1);
     IArrivalTable.Init(0, SIMULATION_TIME, 1);
     NArrivalTable.Init(0, SIMULATION_TIME, 1);
 
@@ -273,6 +432,43 @@ int main(int argc, char *argv[]) {
             break;
         case 'l':
             SetOutput("line_divider.out");
+            Print(" LINE DIVIDER MODEL \n");
+            printf("Začátek simulace...\n");
+
+            for (int i = 0; i < international; i++) {
+                char buffer[12];
+                std::sprintf(buffer, "CounterI[%d]", i);
+                InterCounter[i].SetName(buffer);
+            }
+
+            for (int i = 0; i < national; i++) {
+                char buffer[12];
+                std::sprintf(buffer, "CounterN[%d]", i);
+                NationalCounter[i].SetName(buffer);
+            }
+
+            Init(0, SIMULATION_TIME); // init experiment
+            new Generator;            // create and activate generator
+
+            Run(); // simulation run
+            // print reports:
+            for (int i = 0; i < international; i++) {
+                InterCounter[i].Output();
+            }
+            for (int i = 0; i < national; i++) {
+                NationalCounter[i].Output();
+            }
+
+            InterWaitingTable.Output();
+            NationalWaitingTableLeft.Output();
+            NationalWaitingTableRight.Output();
+            IArrivalTable.Output();
+            NArrivalTable.Output();
+            InterQueue.Output();
+            NationalSplitQueueLeft.Output();
+            NationalSplitQueueRight.Output();
+
+            printf("Konec simulace...\n");
             break;
         }
     }

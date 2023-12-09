@@ -13,23 +13,33 @@
 #include <iostream>
 #include <simlib.h>
 #include <stdio.h>
+#include <sstream>
 
 #define SIMULATION_TIME (sim_time)
 #define ARRIVAL_TIME ((sim_time) / people)
 #define COUNTER_PCT 37.5 // menší hodnota přepážky procenta
 
+#define GO_LEFT 0
+#define GO_RIGHT 1
+
 int national = 0;
 int international = 0;
 int sim_time = 15 * 60; // 15 minut
 int people = 112;       // 112 lidí
+int nationalLeft = 0;
+int nationalRight = 0;
 
 // Histogram NationalWaitingTable("Počty čekání vnitrostátní", 0, 5, 20);
 // Histogram InterWaitingTable("Počty čekání mezinárodní", 0, 5, 20);
 Histogram NationalWaitingTable("Počty čekání vnitrostátní", 0, SIMULATION_TIME, 1);
 Histogram InterWaitingTable("Počty čekání mezinárodní", 0, SIMULATION_TIME, 1);
+Histogram NationalWaitingTableLeft("Počty čekání vnitrostátní LEVA", 0, SIMULATION_TIME, 1);
+Histogram NationalWaitingTableRight("Počty čekání vnitrostátní PRAVA", 0, SIMULATION_TIME, 1);
 
 Histogram NationalService("Obsluha vnitrostátní", 0, 20, 6);
 Histogram InterService("Obsluha mezinárodní", 0, 20, 6);
+Histogram NationalServiceLeft("Obsluha vnitrostátní LEVA", 0, 20, 6);
+Histogram NationalServiceRight("Obsluha vnitrostátní PRAVA", 0, 20, 6);
 
 // Histogram ArrivalTable("Počty příchodů", 0, 60, 15);               // po minutách
 // Histogram NArrivalTable("Počty příchodů vnitrostátní", 0, 60, 15); // po minutách
@@ -43,8 +53,11 @@ Queue InterQueue("Čekání Mezinárodní");
 Facility NationalCounter[6];
 Queue NationalQueue("Čekání Vnitrostátní");
 
+Queue NationalSplitQueueLeft("Čekání Vnitrostátní Leva");
+Queue NationalSplitQueueRight("Čekání Vnitrostátní Prava");
+
 std::string args = "xxxx"; // možné modely
-const char *short_args = "hi:n:t:p:bswl";
+const char *short_args = "hi:n:t:p:bswl:";
 struct option long_args[] =
     {
         {"help", no_argument, NULL, 'h'},
@@ -55,7 +68,7 @@ struct option long_args[] =
         {"base", no_argument, NULL, 'b'},
         {"self_checkout", no_argument, NULL, 's'},
         {"side_window", no_argument, NULL, 'w'},
-        {"line_divider", no_argument, NULL, 'l'},
+        {"line_divider", required_argument, NULL, 'l'},
         {0, 0, 0, 0} // ukoncovaci prvek
 };
 
