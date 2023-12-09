@@ -17,6 +17,7 @@
 #include <iostream>
 #include <simlib.h>
 #include <stdio.h>
+#include <algorithm>
 
 #define SIMULATION_TIME (15 * 60)      // 15 minut
 #define ARRIVAL_TIME ((15 * 60) / 120) // 15 minut / 120 lidí

@@ -17,13 +17,17 @@ class CustomerNational : public Process { // customer description
         double srvc_pct = Random() * 100;
         double service_time = 0; // Default value
         if (srvc_pct >= 0 && srvc_pct <= 12.07) {
-            service_time = 18; // Hodnota pro první rozsah
+            service_time = std::max((double)1, Normal(18.3, 1));
+            // service_time = 18; // Hodnota pro první rozsah
         } else if (srvc_pct > 12.07 && srvc_pct <= 74.14) {
-            service_time = 28.25; // Hodnota pro druhý rozsah
+            service_time = std::max((double)1, Normal(28.25, 5.12));
+            // service_time = 28.25; // Hodnota pro druhý rozsah
         } else if (srvc_pct > 74.14 && srvc_pct <= 86.21) {
-            service_time = 46.57; // Hodnota pro třetí rozsah
+            service_time = std::max((double)1, Normal(46.57, 6.19));
+            // service_time = 46.57; // Hodnota pro třetí rozsah
         } else if (srvc_pct > 86.21) {
-            service_time = 83.38; // Hodnota pro čtvrtý rozsah
+            service_time = std::max((double)1, Normal(83.38, 32.12));
+            // service_time = 83.38; // Hodnota pro čtvrtý rozsah
         }
 
         ArrivalTime = Time; // mark start time
@@ -101,13 +105,17 @@ class CustomerInter : public Process { // customer description
         double srvc_pct = Random() * 100;
         double service_time = 0; // Default value
         if (srvc_pct >= 0 && srvc_pct <= 22.58) {
-            service_time = 13.57; // Hodnota pro první rozsah
+            service_time = std::max((double)1, Normal(13.57, 5.17));
+            // service_time = 13.57; // Hodnota pro první rozsah
         } else if (srvc_pct > 22.58 && srvc_pct <= 67.74) {
-            service_time = 27.89; // Hodnota pro druhý rozsah
+            service_time = std::max((double)1, Normal(27.89, 6.05));
+            // service_time = 27.89; // Hodnota pro druhý rozsah
         } else if (srvc_pct > 67.74 && srvc_pct <= 83.87) {
-            service_time = 45.7; // Hodnota pro třetí rozsah
+            service_time = std::max((double)1, Normal(45.7, 6.31));
+            // service_time = 45.7; // Hodnota pro třetí rozsah
         } else if (srvc_pct > 83.87) {
-            service_time = 109.1; // Hodnota pro čtvrtý rozsah
+            service_time = std::max((double)1, Normal(109.1, 57.33));
+            // service_time = 109.1; // Hodnota pro čtvrtý rozsah
         }
 
         ArrivalTime = Time; // mark start time
