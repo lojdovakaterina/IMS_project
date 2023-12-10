@@ -75,8 +75,9 @@ Queue NationalQueue("National Queue");
 Queue NationalSplitQueueLeft("Left National Queue");
 Queue NationalSplitQueueRight("Right National Queue");
 
+bool skript = false;
 char model = '\0';
-const char *short_args = "hi:n:t:p:bdl:r:"; //sw
+const char *short_args = "hi:n:t:p:bdl:r:s";
 struct option long_args[] =
     {
         {"help", no_argument, NULL, 'h'},
@@ -88,6 +89,7 @@ struct option long_args[] =
         {"line_divider", required_argument, NULL, 'd'},
         {"left", required_argument, NULL, 'l'},
         {"right", required_argument, NULL, 'r'},
+        {"skript", required_argument, NULL, 's'},
         {0, 0, 0, 0} // ukoncovaci prvek
 };
 

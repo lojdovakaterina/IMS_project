@@ -306,7 +306,7 @@ public:
 };
 
 void stdout_help(){
-    std::cout << "\nPoužití: [-i] [-n] [-t] [-p] [-b] [-d] [-l] [-r]\n"; // TODOO
+    std::cout << "\nPoužití: [-i] [-n] [-t] [-p] [-b] [-d] [-l] [-r] [-s]\n";
     std::cout << "\n [-i] [--international]\n";
     std::cout << "\tPočet otevřených mezinárodních přepážek. Povinný argument.\n\tHodnota povinná v intervalu<1,4>\n";
     std::cout << "\n [-n] [--national]\n";
@@ -321,9 +321,8 @@ void stdout_help(){
     std::cout << "\n [-l] [--left]\n";
     std::cout << "\tPočet přepážek vlevo. Hodnota v intervalu <1,3>\n";
     std::cout << "\n [-r] [--right]\n";
-    std::cout << "\tPočet přepážek vpravo. Hodnota v intervalu <1,3>\n\n";
-    // std::cout << "[-s] [--self_checkout] Model přidání automatu na jízdenky\n";
-    // std::cout << "[-w] [--side_window] Model otevření postraní přepážky\n";
+    std::cout << "\tPočet přepážek vpravo. Hodnota v intervalu <1,3>\n";
+    std::cout << "\n [-s] [--skript]\n\tVypíše hodnoty pro skript k vyhodnocení statistik\n\n";
 }
 
 void argParse(int argc, char *argv[]) {
@@ -360,6 +359,9 @@ void argParse(int argc, char *argv[]) {
                 std::exit(EXIT_FAILURE);
             }
             break;
+        case 's':
+            skript = true;
+            break;
         default:
             std::cout << "Neznámý argument.\n";
             std::exit(EXIT_FAILURE);
@@ -368,7 +370,6 @@ void argParse(int argc, char *argv[]) {
 
     // Check if mandatory parameters are provided //TODO
     if (national < 1 || national > 6) {
-        std::cout << "Počet vnitrostátních pokladen je nutné zadat. Musí také být v rozmezí 1 až 6.\n";
         std::cout << "Počet vnitrostátních pokladen je nutné zadat. Musí také být v rozmezí 1 až 6.\n";
         std::exit(EXIT_FAILURE);
     }
@@ -513,7 +514,11 @@ int main(int argc, char *argv[]) {
         Run(); // simulation run
 
         base_statistic_file();   // output to file
-        base_statistic_script(); // skript need this output
+
+        if (skript)
+        {
+            base_statistic_script(); // skript need this output
+        }
 
     } else if (model == 'd') {
         SetOutput("line_divider.out");
@@ -524,7 +529,10 @@ int main(int argc, char *argv[]) {
         Run(); // simulation run
 
         line_statistic_file();   // output to file
-        line_statistic_script(); // skript need this output
+
+        if (skript){
+            line_statistic_script(); // skript need this output
+        }
 
     } else {
         printf("Nebyl spuštěn žádný model. Potřeba argumentu -b nebo -l\n");
