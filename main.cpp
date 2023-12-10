@@ -271,16 +271,12 @@ public:
     CustomerInter() { Activate(); }
 }; // Customer
 
-class Generator : public Event { // generator of customers
+class BaseGenerator : public Event { // generator of customers for the base
     void Behavior() {            // --- customer behavior ---
         double rnd_pct = Random() * 100;
         if (rnd_pct > COUNTER_PCT) {
             NArrivalTable(Time);
-            if(nationalLeft != 0){
-                new CustomerNationalTwoLines; // create new customer for model with two lines
-            }else{
-                new CustomerNational; // create new customer for base model
-            }
+            new CustomerNational; // create new customer for base model
         } else {
             IArrivalTable(Time);
             new CustomerInter; // create new customer
@@ -289,10 +285,30 @@ class Generator : public Event { // generator of customers
         ArrivalTable(Time);
     }
 
-public:
-    Generator() {
-        Activate();
+    public:
+        BaseGenerator() {
+            Activate();
+        }
+};
+
+class LineGenerator : public Event { // generator of customers for the base
+    void Behavior() {            // --- customer behavior ---
+        double rnd_pct = Random() * 100;
+        if (rnd_pct > COUNTER_PCT) {
+            NArrivalTable(Time);
+            new CustomerNationalTwoLines; // create new customer for model with two lines
+        } else {
+            IArrivalTable(Time);
+            new CustomerInter; // create new customer
+        }
+        Activate(Time + Exponential(ARRIVAL_TIME));
+        ArrivalTable(Time);
     }
+
+    public:
+        LineGenerator() {
+            Activate();
+        }
 };
 
 void argParse(int argc, char *argv[]) {
@@ -401,7 +417,7 @@ int main(int argc, char *argv[]) {
             }
 
             Init(0, SIMULATION_TIME); // init experiment
-            new Generator;            // create and activate generator
+            new BaseGenerator;        // create and activate generator
 
             Run(); // simulation run
             // print reports:
@@ -453,7 +469,7 @@ int main(int argc, char *argv[]) {
             }
 
             Init(0, SIMULATION_TIME); // init experiment
-            new Generator;            // create and activate generator
+            new LineGenerator;        // create and activate generator
 
             Run(); // simulation run
             // print reports:
