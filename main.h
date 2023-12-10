@@ -1,5 +1,5 @@
 /**
- * @file main.cpp
+ * @file main.h
  * @author Andrea Michlíková, Kateřina Lojdová
  * @brief
  */
@@ -29,28 +29,46 @@ int people = 112;       // 112 lidí
 int nationalLeft = 0;
 int nationalRight = 0;
 
-// Histogram NationalWaitingTable("Počty čekání vnitrostátní", 0, 5, 20);
-// Histogram InterWaitingTable("Počty čekání mezinárodní", 0, 5, 20);
-Histogram NationalWaitingTable("Počty čekání vnitrostátní", 0, SIMULATION_TIME, 1);
-Histogram InterWaitingTable("Počty čekání mezinárodní", 0, SIMULATION_TIME, 1);
-Histogram NationalWaitingTableLeft("Počty čekání vnitrostátní LEVA", 0, SIMULATION_TIME, 1);
-Histogram NationalWaitingTableRight("Počty čekání vnitrostátní PRAVA", 0, SIMULATION_TIME, 1);
+class MyHistogram : public Histogram {
+public:
+    MyHistogram(const char *title, double min, double max, double width) : Histogram(title, min, max, width) {}
 
-Histogram NationalService("Obsluha vnitrostátní", 0, 20, 6);
+    void MyOutput() const {
+        if (stat.Number() == 0)
+            printf("%s 0\n", Name().c_str());
+        else
+            printf("%s %-25g\n", Name().c_str(), stat.MeanValue());
+    }
+};
+class MyFacility : public Facility {
+public:
+    MyFacility() : Facility() {}
+
+    void MyOutput() const {
+        printf("%s %-25g\n", Name().c_str(), tstat.MeanValue());
+    }
+};
+
+MyHistogram InterWaitingTable("IW", 0, SIMULATION_TIME, 1);
+MyHistogram NationalWaitingTable("NW", 0, SIMULATION_TIME, 1);
+MyHistogram NationalWaitingTableLeft("Počty čekání vnitrostátní LEVA", 0, SIMULATION_TIME, 1);
+MyHistogram NationalWaitingTableRight("Počty čekání vnitrostátní PRAVA", 0, SIMULATION_TIME, 1);
+
 Histogram InterService("Obsluha mezinárodní", 0, 20, 6);
+Histogram NationalService("Obsluha vnitrostátní", 0, 20, 6);
 Histogram NationalServiceLeft("Obsluha vnitrostátní LEVA", 0, 20, 6);
 Histogram NationalServiceRight("Obsluha vnitrostátní PRAVA", 0, 20, 6);
 
 // Histogram ArrivalTable("Počty příchodů", 0, 60, 15);               // po minutách
-// Histogram NArrivalTable("Počty příchodů vnitrostátní", 0, 60, 15); // po minutách
-// Histogram IArrivalTable("Počty příchodů mezinárodní", 0, 60, 15);  // po minutách
+// Histogram InterArrivalTable("Počty příchodů mezinárodní", 0, 60, 15);  // po minutách
+// Histogram NationalArrivalTable("Počty příchodů vnitrostátní", 0, 60, 15); // po minutách
 Histogram ArrivalTable("Počty příchodů", 0, SIMULATION_TIME, 1);               // po minutách
-Histogram NArrivalTable("Počty příchodů vnitrostátní", 0, SIMULATION_TIME, 1); // po minutách
-Histogram IArrivalTable("Počty příchodů mezinárodní", 0, SIMULATION_TIME, 1);  // po minutách
+Histogram InterArrivalTable("Počty příchodů mezinárodní", 0, SIMULATION_TIME, 1);     // po minutách
+Histogram NationalArrivalTable("Počty příchodů vnitrostátní", 0, SIMULATION_TIME, 1); // po minutách
 
-Facility InterCounter[4];
+MyFacility InterCounter[4];
 Queue InterQueue("Čekání Mezinárodní");
-Facility NationalCounter[6];
+MyFacility NationalCounter[6];
 Queue NationalQueue("Čekání Vnitrostátní");
 
 Queue NationalSplitQueueLeft("Čekání Vnitrostátní Leva");

@@ -75,7 +75,7 @@ public:
 }; // Customer
 
 class CustomerNationalTwoLines : public Process { // customer description
-    double ArrivalTime;                   // start time
+    double ArrivalTime;                           // start time
     double ServiceTime;
     int CounterNum;   // Counter to use
     void Behavior() { // --- customer behavior ---
@@ -101,21 +101,21 @@ class CustomerNationalTwoLines : public Process { // customer description
         int chosen_line = 0;
 
         // if both queues are empty, choose one at random
-        if(NationalSplitQueueLeft.empty() && NationalSplitQueueRight.empty()){
+        if (NationalSplitQueueLeft.empty() && NationalSplitQueueRight.empty()) {
             std::cout << "queues empty" << endl;
             double rnd_pct = Random() * 100;
-            if(rnd_pct > 50){
+            if (rnd_pct > 50) {
                 std::cout << "random left" << endl;
                 chosen_line = GO_LEFT; // go left
-            }else{
+            } else {
                 std::cout << "random right" << endl;
                 chosen_line = GO_RIGHT; // go right
             }
-        //if left has fewer people waiting, choose left
-        }else if(NationalSplitQueueLeft.Length() < NationalSplitQueueRight.Length()){
+            // if left has fewer people waiting, choose left
+        } else if (NationalSplitQueueLeft.Length() < NationalSplitQueueRight.Length()) {
             std::cout << "left shorter" << endl;
             chosen_line = GO_LEFT;
-        }else{
+        } else {
             std::cout << "right shorter" << endl;
             chosen_line = GO_RIGHT;
         }
@@ -134,7 +134,7 @@ class CustomerNationalTwoLines : public Process { // customer description
 
             if (CounterNum == -1) {
                 Into(NationalSplitQueueLeft); // go into queue
-                Passivate();         // sleep
+                Passivate();                  // sleep
                 for (int i = 3; i < 3 + nationalLeft; i++) {
                     if (!NationalCounter[i].Busy()) {
                         std::cout << "try national counter L " << i << " vol2" << endl;
@@ -162,7 +162,7 @@ class CustomerNationalTwoLines : public Process { // customer description
             }
         } else {
             std::cout << "go right" << endl;
-            //RIGHT LINE
+            // RIGHT LINE
             CounterNum = -1;
             for (int i = 0; i < nationalRight; i++) {
                 std::cout << "try national counter R " << i << endl;
@@ -174,7 +174,7 @@ class CustomerNationalTwoLines : public Process { // customer description
 
             if (CounterNum == -1) {
                 Into(NationalSplitQueueRight); // go into queue
-                Passivate();         // sleep
+                Passivate();                   // sleep
                 for (int i = 0; i < nationalRight; i++) {
                     std::cout << "try national counter R " << i << " vol2" << endl;
                     if (!NationalCounter[i].Busy()) {
@@ -253,7 +253,7 @@ class CustomerInter : public Process { // customer description
         }
         Seize(InterCounter[CounterNum]); // start service
         InterWaitingTable(Time - ArrivalTime);
-        
+
         ServiceTime = Time;
         Wait(service_time);
         InterService(Time - ServiceTime);
@@ -272,43 +272,43 @@ public:
 }; // Customer
 
 class BaseGenerator : public Event { // generator of customers for the base
-    void Behavior() {            // --- customer behavior ---
+    void Behavior() {                // --- customer behavior ---
         double rnd_pct = Random() * 100;
         if (rnd_pct > COUNTER_PCT) {
-            NArrivalTable(Time);
+            NationalArrivalTable(Time);
             new CustomerNational; // create new customer for base model
         } else {
-            IArrivalTable(Time);
+            InterArrivalTable(Time);
             new CustomerInter; // create new customer
         }
         Activate(Time + Exponential(ARRIVAL_TIME));
         ArrivalTable(Time);
     }
 
-    public:
-        BaseGenerator() {
-            Activate();
-        }
+public:
+    BaseGenerator() {
+        Activate();
+    }
 };
 
 class LineGenerator : public Event { // generator of customers for the base
-    void Behavior() {            // --- customer behavior ---
+    void Behavior() {                // --- customer behavior ---
         double rnd_pct = Random() * 100;
         if (rnd_pct > COUNTER_PCT) {
-            NArrivalTable(Time);
+            NationalArrivalTable(Time);
             new CustomerNationalTwoLines; // create new customer for model with two lines
         } else {
-            IArrivalTable(Time);
+            InterArrivalTable(Time);
             new CustomerInter; // create new customer
         }
         Activate(Time + Exponential(ARRIVAL_TIME));
         ArrivalTable(Time);
     }
 
-    public:
-        LineGenerator() {
-            Activate();
-        }
+public:
+    LineGenerator() {
+        Activate();
+    }
 };
 
 void argParse(int argc, char *argv[]) {
@@ -338,20 +338,20 @@ void argParse(int argc, char *argv[]) {
         case 'p':
             people = atoi(optarg);
             break;
-        case 'l':{
+        case 'l': {
             cout << "found -l" << endl;
-            if(optarg == nullptr){
+            if (optarg == nullptr) {
                 std::cout << "Chybi argumenty argument pro volbu -l.\n";
                 std::exit(EXIT_FAILURE);
             }
             std::istringstream iss(optarg);
-            if(!(iss >> nationalLeft >> nationalRight) || !iss.eof()){
+            if (!(iss >> nationalLeft >> nationalRight) || !iss.eof()) {
                 std::cout << "Nespravny pocet argumentu pro volbu -l.\n";
                 std::exit(EXIT_FAILURE);
             }
-            cout << "made it through sscanf" << endl;
-            cout << nationalLeft << endl;
-            cout << nationalRight << endl;
+            // cout << "made it through sscanf" << endl;
+            // cout << nationalLeft << endl;
+            // cout << nationalRight << endl;
         }
         case 'b':
         case 's':
@@ -381,11 +381,11 @@ void argParse(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
-    cout << "inside main" << endl;
+    // cout << "inside main" << endl;
     RandomSeed(time(nullptr)); // different outputs
-    cout << "gonna parse arguments" << endl;
+    // cout << "gonna parse arguments" << endl;
     argParse(argc, argv);
-    cout << "Parsed arguments" << endl;
+    // cout << "Parsed arguments" << endl;
     int c;
     int i = 0;
 
@@ -394,25 +394,24 @@ int main(int argc, char *argv[]) {
     NationalWaitingTable.Init(0, SIMULATION_TIME, 1);
     NationalWaitingTableRight.Init(0, SIMULATION_TIME, 1);
     NationalWaitingTableLeft.Init(0, SIMULATION_TIME, 1);
-    IArrivalTable.Init(0, SIMULATION_TIME, 1);
-    NArrivalTable.Init(0, SIMULATION_TIME, 1);
+    InterArrivalTable.Init(0, SIMULATION_TIME, 1);
+    NationalArrivalTable.Init(0, SIMULATION_TIME, 1);
 
     while ((c = args[i++]) != '\0') {
         switch (c) {
         case 'b':
             SetOutput("base.out");
-            Print(" BASE MODEL \n");
-            printf("Začátek simulace...\n");
+            Print("BASE MODEL \n");
 
             for (int i = 0; i < international; i++) {
                 char buffer[12];
-                std::sprintf(buffer, "CounterI[%d]", i);
+                std::sprintf(buffer, "IC%d", i);
                 InterCounter[i].SetName(buffer);
             }
 
             for (int i = 0; i < national; i++) {
                 char buffer[12];
-                std::sprintf(buffer, "CounterN[%d]", i);
+                std::sprintf(buffer, "NC%d", i);
                 NationalCounter[i].SetName(buffer);
             }
 
@@ -420,25 +419,37 @@ int main(int argc, char *argv[]) {
             new BaseGenerator;        // create and activate generator
 
             Run(); // simulation run
+            
             // print reports:
+            // output to file
+            ArrivalTable.Output();
+            Print("------------ International -------------");
+            InterArrivalTable.Output();
+            InterQueue.Output();
+            InterWaitingTable.Output();
+            InterService.Output();
             for (int i = 0; i < international; i++) {
                 InterCounter[i].Output();
             }
+            Print("--------------- National ---------------");
+            NationalArrivalTable.Output();
+            NationalQueue.Output();
+            NationalWaitingTable.Output();
+            NationalService.Output();
             for (int i = 0; i < national; i++) {
                 NationalCounter[i].Output();
             }
 
-            // NationalService.Output();
-            // InterService.Output();
-            InterWaitingTable.Output();
-            NationalWaitingTable.Output();
-            IArrivalTable.Output();
-            NArrivalTable.Output();
-            // ArrivalTable.Output();
-            InterQueue.Output();
-            NationalQueue.Output();
+            // skript need output
+            for (int i = 0; i < international; i++) {
+                InterCounter[i].MyOutput();
+            }
+            for (int i = 0; i < national; i++) {
+                NationalCounter[i].MyOutput();
+            }
+            InterWaitingTable.MyOutput();
+            NationalWaitingTable.MyOutput();
 
-            printf("Konec simulace...\n");
             break;
         case 's':
             SetOutput("self_checkout.out");
@@ -486,8 +497,8 @@ int main(int argc, char *argv[]) {
             InterWaitingTable.Output();
             NationalWaitingTableLeft.Output();
             NationalWaitingTableRight.Output();
-            IArrivalTable.Output();
-            NArrivalTable.Output();
+            InterArrivalTable.Output();
+            NationalArrivalTable.Output();
             InterQueue.Output();
             NationalSplitQueueLeft.Output();
             NationalSplitQueueRight.Output();
