@@ -108,7 +108,7 @@ for filename in os.listdir(directory_path):
         result = calculate_avgs(file_path, filename)
 
         # Otevřete soubor pro přidání na konec
-        output_file = file_path = os.path.join(directory_path, "prumerW.out")
+        output_file = file_path = os.path.join(directory_path, "statistic.out")
         with open(file_path, 'a') as file:
             # výsledky na konec souboru
             file.write(result)
