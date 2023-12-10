@@ -352,8 +352,6 @@ void argParse(int argc, char *argv[]) {
             nationalRight = atoi(optarg);
             break;
         case 'd':
-        // case 's':
-        // case 'w':
         case 'b':
             if (model == '\0') {
                 model = c;
@@ -475,24 +473,24 @@ void line_statistic_file() {
 }
 
 void line_statistic_script() {
-    for (int i = 0; i < international; i++) {
-        std::string counterName = "IC" + std::to_string(i);
-        InterCounter[i].SetName(counterName.c_str());
-        InterCounter[i].MyOutput();
-    }
+    // for (int i = 0; i < international; i++) {
+    //     std::string counterName = "IC" + std::to_string(i);
+    //     InterCounter[i].SetName(counterName.c_str());
+    //     InterCounter[i].MyOutput();
+    // }
     for (int i = 0; i < nationalRight; i++) {
         std::string counterName = "RNC" + std::to_string(i);
         NationalCounter[i].SetName(counterName.c_str());
         NationalCounter[i].MyOutput();
     }
     for (int i = 3; i < (3 + nationalLeft); i++) {
-        std::string counterName = "LNC" + std::to_string(i);
+        std::string counterName = "LNC" + std::to_string(i-3);
         NationalCounter[i].SetName(counterName.c_str());
         NationalCounter[i].MyOutput();
     }
 
-    InterWaitingTable.SetName("IW");
-    InterWaitingTable.MyOutput();
+    // InterWaitingTable.SetName("IW");
+    // InterWaitingTable.MyOutput();
     NationalWaitingTableLeft.SetName("LNW");
     NationalWaitingTableLeft.MyOutput();
     NationalWaitingTableRight.SetName("RNW");

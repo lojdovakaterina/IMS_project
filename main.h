@@ -88,8 +88,6 @@ struct option long_args[] =
         {"line_divider", required_argument, NULL, 'd'},
         {"left", required_argument, NULL, 'l'},
         {"right", required_argument, NULL, 'r'},
-        // {"self_checkout", no_argument, NULL, 's'},
-        // {"side_window", no_argument, NULL, 'w'},
         {0, 0, 0, 0} // ukoncovaci prvek
 };
 

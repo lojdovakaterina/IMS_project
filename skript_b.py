@@ -67,14 +67,14 @@ def calculate_avgs(file_path, filename):
         total_avg_ic += total_ic[i]
         total_count_ic += count
 
-    result_string += f"-----------------\n"
+    result_string += "-----------------\n"
     for n, count in count_nc.items():
         avg_nc = total_nc[n] / count
         result_string += f"NC{n}: {avg_nc*100:.2f} %\n"
         total_avg_nc += total_nc[n]
         total_count_nc += count
 
-    result_string += f"-----------------\n"
+    result_string += "-----------------\n"
     total_avg_ic = total_avg_ic / total_count_ic
     total_avg_nc = total_avg_nc / total_count_nc
 
