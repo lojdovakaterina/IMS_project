@@ -10,22 +10,22 @@ class CustomerNational : public Process { // customer description
     double ArrivalTime;                   // start time
     double ServiceTime;
     int CounterNum;   // Counter to use
-    void Behavior() { // --- customer behavior ---
+    void Behavior() { 
         double srvc_pct = Random() * 100;
         // determine how long will it take to take care of the customer
         double service_time = 0; // Default value
         if (srvc_pct >= 0 && srvc_pct <= 12.07) {
             service_time = std::max((double)1, Normal(18.3, 1));
-            // service_time = 18; // Hodnota pro první rozsah
+            // service_time = 18; 
         } else if (srvc_pct > 12.07 && srvc_pct <= 74.14) {
             service_time = std::max((double)1, Normal(28.25, 5.12));
-            // service_time = 28.25; // Hodnota pro druhý rozsah
+            // service_time = 28.25; 
         } else if (srvc_pct > 74.14 && srvc_pct <= 86.21) {
             service_time = std::max((double)1, Normal(46.57, 6.19));
-            // service_time = 46.57; // Hodnota pro třetí rozsah
+            // service_time = 46.57; 
         } else if (srvc_pct > 86.21) {
             service_time = std::max((double)1, Normal(83.38, 32.12));
-            // service_time = 83.38; // Hodnota pro čtvrtý rozsah
+            // service_time = 83.38; 
         }
 
         ArrivalTime = Time; // mark start time
@@ -78,7 +78,7 @@ class CustomerNationalTwoLines : public Process { // customer description
     double ArrivalTime;                           // start time
     double ServiceTime;
     int CounterNum;   // Counter to use
-    void Behavior() { // --- customer behavior ---
+    void Behavior() { 
         double srvc_pct = Random() * 100;
         // determine how long will it take to take care of the customer
         double service_time = 0; // Default value
@@ -204,22 +204,22 @@ class CustomerInter : public Process { // customer description
     double ArrivalTime;                // start time
     double ServiceTime;
     int CounterNum;   // Counter to use
-    void Behavior() { // --- customer behavior ---
+    void Behavior() {
         double srvc_pct = Random() * 100;
         // determine how long will it take to take care of the customer
         double service_time = 0; // Default value
         if (srvc_pct >= 0 && srvc_pct <= 22.58) {
             service_time = std::max((double)1, Normal(13.57, 5.17));
-            // service_time = 13.57; // Hodnota pro první rozsah
+            // service_time = 13.57; 
         } else if (srvc_pct > 22.58 && srvc_pct <= 67.74) {
             service_time = std::max((double)1, Normal(27.89, 6.05));
-            // service_time = 27.89; // Hodnota pro druhý rozsah
+            // service_time = 27.89; 
         } else if (srvc_pct > 67.74 && srvc_pct <= 83.87) {
             service_time = std::max((double)1, Normal(45.7, 6.31));
-            // service_time = 45.7; // Hodnota pro třetí rozsah
+            // service_time = 45.7; 
         } else if (srvc_pct > 83.87) {
             service_time = std::max((double)1, Normal(109.1, 57.33));
-            // service_time = 109.1; // Hodnota pro čtvrtý rozsah
+            // service_time = 109.1; 
         }
 
         ArrivalTime = Time; // mark start time
@@ -266,7 +266,7 @@ public:
 }; // Customer
 
 class BaseGenerator : public Event { // generator of customers for the base
-    void Behavior() {                // --- customer behavior ---
+    void Behavior() {               
         double rnd_pct = Random() * 100;
         if (rnd_pct > COUNTER_PCT) {
             NationalArrivalTable(Time);
@@ -286,7 +286,7 @@ public:
 };
 
 class LineGenerator : public Event { // generator of customers for the line divider
-    void Behavior() {                // --- customer behavior ---
+    void Behavior() {                
         double rnd_pct = Random() * 100;
         if (rnd_pct > COUNTER_PCT) {
             NationalArrivalTable(Time);
@@ -368,7 +368,7 @@ void argParse(int argc, char *argv[]) {
         }
     }
 
-    // Check if mandatory parameters are provided //TODO
+    // Check if mandatory parameters are provided 
     if (national < 1 || national > 6) {
         std::cout << "Počet vnitrostátních pokladen je nutné zadat. Musí také být v rozmezí 1 až 6.\n";
         std::exit(EXIT_FAILURE);
