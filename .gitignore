@@ -10,5 +10,5 @@
 *.out
 
 
-# Ignore folders
-*/
+# Ignore out folder
+out/
