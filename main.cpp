@@ -55,6 +55,7 @@ class CustomerNational : public Process { // customer description
         }
 
         Seize(NationalCounter[CounterNum]); // start service
+        NationalWaitingTable(Time - ArrivalTime);
 
         ServiceTime = Time;
         Wait(service_time);
@@ -64,7 +65,6 @@ class CustomerNational : public Process { // customer description
             CustomerNational *z = (CustomerNational *)(NationalQueue.front());
             z->Out();      // remove z from queue
             z->Activate(); // wake-up
-            NationalWaitingTable(Time - ArrivalTime);
         }
     }
 
@@ -149,6 +149,7 @@ class CustomerNationalTwoLines : public Process { // customer description
 
             std::cout << "seize counter" << endl;
             Seize(NationalCounter[CounterNum]); // start service
+            NationalWaitingTableLeft(Time - ArrivalTime);
 
             ServiceTime = Time;
             Wait(service_time);
@@ -158,7 +159,6 @@ class CustomerNationalTwoLines : public Process { // customer description
                 CustomerNational *z = (CustomerNational *)(NationalSplitQueueLeft.front());
                 z->Out();      // remove z from queue
                 z->Activate(); // wake-up
-                NationalWaitingTableLeft(Time - ArrivalTime);
             }
         } else {
             std::cout << "go right" << endl;
@@ -188,6 +188,7 @@ class CustomerNationalTwoLines : public Process { // customer description
             }
 
             Seize(NationalCounter[CounterNum]); // start service
+            NationalWaitingTableRight(Time - ArrivalTime);
 
             ServiceTime = Time;
             Wait(service_time);
@@ -197,7 +198,6 @@ class CustomerNationalTwoLines : public Process { // customer description
                 CustomerNational *z = (CustomerNational *)(NationalSplitQueueRight.front());
                 z->Out();      // remove z from queue
                 z->Activate(); // wake-up
-                NationalWaitingTableRight(Time - ArrivalTime);
             }
         }
     }
@@ -252,7 +252,8 @@ class CustomerInter : public Process { // customer description
             }
         }
         Seize(InterCounter[CounterNum]); // start service
-
+        InterWaitingTable(Time - ArrivalTime);
+        
         ServiceTime = Time;
         Wait(service_time);
         InterService(Time - ServiceTime);
@@ -263,7 +264,6 @@ class CustomerInter : public Process { // customer description
             CustomerInter *z = (CustomerInter *)(InterQueue.front());
             z->Out();      // remove z from queue
             z->Activate(); // wake-up
-            InterWaitingTable(Time - ArrivalTime);
         }
     }
 
