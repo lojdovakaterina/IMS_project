@@ -101,21 +101,49 @@ class CustomerNationalTwoLines : public Process { // customer description
         int chosen_line = 0;
 
         // if both queues are empty, choose one at random
-        if (NationalSplitQueueLeft.empty() && NationalSplitQueueRight.empty()) {
+        if (NationalSplitQueueLeft.empty() && NationalSplitQueueRight.empty())
+        {
             std::cout << "queues empty" << endl;
             double rnd_pct = Random() * 100;
-            if (rnd_pct > 50) {
+            if (rnd_pct > 50)
+            {
                 std::cout << "random left" << endl;
                 chosen_line = GO_LEFT; // go left
-            } else {
+            }
+            else
+            {
                 std::cout << "random right" << endl;
                 chosen_line = GO_RIGHT; // go right
             }
-            // if left has fewer people waiting, choose left
-        } else if (NationalSplitQueueLeft.Length() < NationalSplitQueueRight.Length()) {
+            // if queues are the same length, choose at random
+        }else if(NationalSplitQueueLeft.Length() == NationalSplitQueueRight.Length()){
+            std::cout << "PPL in left: " << NationalSplitQueueLeft.Length() << endl;
+            std::cout << "PPL in right: " << NationalSplitQueueRight.Length() << endl;
+            std::cout << "queues equal" << endl;
+            double rnd_pct = Random() * 100;
+            if (rnd_pct > 50)
+            {
+                std::cout << "random left" << endl;
+                chosen_line = GO_LEFT; // go left
+            }
+            else
+            {
+                std::cout << "random right" << endl;
+                chosen_line = GO_RIGHT; // go right
+            }
+        }
+        // if left has fewer people waiting, choose left
+        else if (NationalSplitQueueLeft.Length() < NationalSplitQueueRight.Length())
+        {
+            std::cout << "PPL in left: " << NationalSplitQueueLeft.Length() << endl;
+            std::cout << "PPL in right: " << NationalSplitQueueRight.Length() << endl;
             std::cout << "left shorter" << endl;
             chosen_line = GO_LEFT;
-        } else {
+        }
+        else
+        {
+            std::cout << "PPL in left: " << NationalSplitQueueLeft.Length() << endl;
+            std::cout << "PPL in right: " << NationalSplitQueueRight.Length() << endl;
             std::cout << "right shorter" << endl;
             chosen_line = GO_RIGHT;
         }
