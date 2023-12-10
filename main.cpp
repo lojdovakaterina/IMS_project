@@ -441,9 +441,14 @@ int main(int argc, char *argv[]) {
                 InterCounter[i].SetName(buffer);
             }
 
-            for (int i = 0; i < national; i++) {
-                char buffer[12];
-                std::sprintf(buffer, "CounterN[%d]", i);
+            for (int i = 0; i < nationalRight; i++) {
+                char buffer[13];
+                std::sprintf(buffer, "CounterNR[%d]", i);
+                NationalCounter[i].SetName(buffer);
+            }
+            for (int i = 3; i < (3 + nationalLeft); i++) {
+                char buffer[13];
+                std::sprintf(buffer, "CounterNL[%d]", i);
                 NationalCounter[i].SetName(buffer);
             }
 
@@ -455,7 +460,10 @@ int main(int argc, char *argv[]) {
             for (int i = 0; i < international; i++) {
                 InterCounter[i].Output();
             }
-            for (int i = 0; i < national; i++) {
+            for (int i = 0; i < nationalRight; i++) {
+                NationalCounter[i].Output();
+            }
+            for (int i = 3; i < 3 + nationalLeft; i++) {
                 NationalCounter[i].Output();
             }
 

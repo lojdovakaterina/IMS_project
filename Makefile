@@ -18,7 +18,7 @@ run: all
 #	./$(TARGET) -i 3 -n 4 -b -b
 
 line: all
-	./$(TARGET) -i 2 -n 4 -l "2 2"
+	./$(TARGET) -i 2 -n 4 -l "3 1"
 
 clean:
 	rm -f $(TARGET)
