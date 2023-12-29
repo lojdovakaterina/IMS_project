@@ -1,2 +1,5 @@
 # IMS_project
-IMS project, FIT BUT
+
+FIT BUT, 2023
+Authors: Andrea Michlíková + Kateřina Lojdová
+Grade: 20/20
